@@ -1,6 +1,6 @@
 function toggleFolder(element) {
   var $element = $(element);
-  var $icon = $element.find('i');
+  var $icon = $element.find('svg');
 
   // Toggle the collapse class
   $element.next('ul').toggleClass('show');

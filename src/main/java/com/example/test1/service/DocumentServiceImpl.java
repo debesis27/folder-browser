@@ -46,10 +46,13 @@ public class DocumentServiceImpl implements DocumentService {
       FolderDTO currentSubFolder = root;
 
       for(int i = 1; i < folders.length - 1; i++){
+        if(folders[i].isEmpty()){
+          continue;
+        }
         currentSubFolder = currentSubFolder.addSubFolder(folders[i]);
       }
 
-      currentSubFolder.addFile(folders[folders.length - 1]);
+      currentSubFolder.addFile(folders[folders.length - 1], file);
     }
 
     return root;

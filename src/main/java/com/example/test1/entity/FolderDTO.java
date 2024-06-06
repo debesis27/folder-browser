@@ -6,7 +6,7 @@ import java.util.List;
 public class FolderDTO {
   private String name;
   private List<FolderDTO> subFolders = new ArrayList<>();
-  private List<String> files = new ArrayList<>();
+  private List<FileDTO> files = new ArrayList<>();
 
   public FolderDTO(String name) {
     this.name = name;
@@ -36,18 +36,19 @@ public class FolderDTO {
     return newSubFolder;
   }
 
-  public List<String> getFiles(){
+  public List<FileDTO> getFiles(){
     return files;
   }
 
-  public void addFile(String fileName){
-    for(String file : this.files){
-      if(file.equals(fileName)){
+  public void addFile(String fileName, String fileUrl){
+    for(FileDTO file : this.files){
+      if(file.getName().equals(fileName)){
         System.out.println("File named: " + fileName + " already exists in folder named: " + this.name + ". Skipping...");
         return;
       }
     }
 
-    this.files.add(fileName);
+    FileDTO newFile = new FileDTO(fileName, fileUrl);
+    this.files.add(newFile);
   }
 }
