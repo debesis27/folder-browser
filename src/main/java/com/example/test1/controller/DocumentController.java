@@ -27,7 +27,8 @@ public class DocumentController {
   }
 
   @GetMapping("/folders-grid")
-  public String getFolderStructureGrid(){
+  public String getFolderStructureGrid(Model model) {
+    model.addAttribute("rootFolder", documentService.buildFolderStructure(documentService.getAllDocuments()));
     return "folder-grid-view";
   }
 }

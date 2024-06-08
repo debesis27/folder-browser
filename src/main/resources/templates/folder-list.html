@@ -1,44 +1,47 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <title>Folder Structure</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link th:href="@{/styles.css}" rel="stylesheet">
+  <title>Folder Structure</title>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <link th:href="@{/styles.css}" rel="stylesheet">
 </head>
+
 <body>
-    <div class="container mt-4">
-        <h1>Folder Structure</h1>
-        <div th:if="${rootFolder != null}">
-            <ul class="list-unstyled">
-                <li>
-                    <div th:replace="::folder(fragment='folder', folder=${rootFolder}, level=0)"></div>
-                </li>
-            </ul>
-        </div>
+  <div class="container mt-4">
+    <h1>Folder Structure</h1>
+    <div th:if="${rootFolder != null}">
+      <ul class="list-unstyled">
+        <li>
+          <div th:replace="::folder(fragment='folder', folder=${rootFolder}, level=0)"></div>
+        </li>
+      </ul>
     </div>
+  </div>
 
-    <th:block th:fragment="folder (folder, level)">
-        <div th:if="${folder != null}" th:style="'margin-left: ' + ${level * 20} + 'px'">
-            <a href="javascript:void(0);" class="folder-toggle" th:onclick="'toggleFolder(this)'">
-                <i class="fa fa-folder" th:if="${folder.name != null}"></i>
-                <span th:text="${folder.name != null ? folder.name : 'Unnamed Folder'}"></span>
-            </a>
-            <ul class="list-unstyled collapse" th:if="${folder.subFolders != null}">
-                <li th:each="subFolder : ${folder.subFolders}">
-                    <div th:replace="::folder(fragment='folder', folder=${subFolder}, level=${level + 1})"></div>
-                </li>
-                <li th:each="file : ${folder.files}" class="file" th:if="${folder.files != null}">
-                    <!-- <span class="ml-4"><i class="fa fa-file"></i> <span th:text="${file}"></span></span> -->
-                    <a th:href="${file.url}" th:text="${file.name}" target="_blank"><i class="fa fa-file"></i></a>
-                </li>
-            </ul>
-        </div>
-    </th:block>
+  <th:block th:fragment="folder (folder, level)">
+    <div th:if="${folder != null}" th:style="'margin-left: ' + ${level * 20} + 'px'">
+      <a href="javascript:void(0);" class="folder-toggle" th:onclick="'toggleFolder(this)'">
+        <i class="fa fa-folder" th:if="${folder.name != null}"></i>
+        <span th:text="${folder.name != null ? folder.name : 'Unnamed Folder'}"></span>
+      </a>
+      <ul class="list-unstyled collapse" th:if="${folder.subFolders != null}">
+        <li th:each="subFolder : ${folder.subFolders}">
+          <div th:replace="::folder(fragment='folder', folder=${subFolder}, level=${level + 1})"></div>
+        </li>
+        <li th:each="file : ${folder.files}" class="file" th:if="${folder.files != null}">
+          <!-- <span class="ml-4"><i class="fa fa-file"></i> <span th:text="${file}"></span></span> -->
+          <a th:href="${file.url}" th:text="${file.name}" target="_blank"><i class="fa fa-file"></i></a>
+        </li>
+      </ul>
+    </div>
+  </th:block>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.6.0/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js"></script>
-    <script th:src="@{/folder-list.js}"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.6.0/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js"></script>
+  <script th:src="@{/folder-list.js}"></script>
 </body>
+
 </html>

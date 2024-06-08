@@ -42,7 +42,7 @@ px
 }
 .stage{
   max-width:100%;
-margin:30px 2%;
+  margin:30px 2%;
   position:relative;  
 }
 .folder-wrap{
@@ -114,7 +114,6 @@ margin:30px 2%;
 }
 .folder-wrap.level-up{
   transform: scale(1.2);
-    
 }
 .folder-wrap.level-current{
   transform: scale(1);
@@ -126,4 +125,23 @@ margin:30px 2%;
 }
 .folder-wrap.level-down{
   transform: scale(0.8);  
+}
+
+/* Added new thing by me */
+
+.folder-wrap.collapse {
+  display: none !important;
+}
+
+/* More new things */
+.folder-div.collapse {
+  display: none !important;
+}
+
+.subfolder-iter.collapse {
+  display: none !important;
+}
+
+.subfolders-div.collapse {
+  display: none !important;
 }
