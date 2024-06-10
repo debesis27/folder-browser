@@ -1,4 +1,49 @@
 let breadcrumbs = [];
+let fileExtensionImageMap = {
+  "doc" : "file-word",
+  "docx" : "file-word",
+  "pdf" : "file-pdf",
+  "xls" : "file-excel",
+  "xlsx" : "file-excel",
+  "ppt" : "file-powerpoint",
+  "pptx" : "file-powerpoint",
+  "jpg" : "file-image",
+  "jpeg" : "file-image",
+  "png" : "file-image",
+  "gif" : "file-image",
+  "bmp" : "file-image",
+  "svg" : "file-image",
+  "mp3" : "file-audio",
+  "wav" : "file-audio",
+  "mp4" : "file-video",
+  "avi" : "file-video",
+  "mkv" : "file-video",
+  "mov" : "file-video",
+  "zip" : "file-archive",
+  "rar" : "file-archive",
+  "tar" : "file-archive",
+  "gz" : "file-archive",
+  "7z" : "file-archive",
+  "html" : "file-code",
+  "css" : "file-code",
+  "js" : "file-code",
+  "java" : "file-code",
+  "c" : "file-code",
+  "cpp" : "file-code",
+  "py" : "file-code",
+  "php" : "file-code",
+  "sql" : "file-code",
+  "json" : "file-code",
+  "xml" : "file-code",
+  "exe" : "file-system",
+  "dll" : "file-system",
+  "sys" : "file-system",
+  "iso" : "file-system",
+  "bin" : "file-system",
+  "bat" : "file-system",
+  "sh" : "file-system",
+  "cmd" : "file-system",
+}
 
 function showBreadcrumbs() {
   const breadcrumbsDiv = $("#breadcrumbs");
@@ -121,3 +166,24 @@ $(window).resize(function() {
     adjustSubfolderPosition(element);
   });
 });
+
+function addFileImage(element) {
+  let extension = $(element).text().split('.').pop().trim();
+  let extensionImage = getFileImage(extension);
+  let imageURL = "/images/file-extensions/" + extensionImage + ".svg";
+  let image = $("<img>").attr("src", imageURL);
+
+  $(element).prepend(image);
+}
+
+function getFileImage(extension) {
+  let image = fileExtensionImageMap[extension] == undefined ? "file-document" : fileExtensionImageMap[extension];
+  return image;
+}
+
+window.onload = function() {
+  let files = document.getElementsByClassName("file-iter");
+  for (let i = 0; i < files.length; i++) {
+    addFileImage(files[i]);
+  }
+}

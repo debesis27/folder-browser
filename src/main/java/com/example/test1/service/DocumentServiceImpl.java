@@ -21,7 +21,7 @@ public class DocumentServiceImpl implements DocumentService {
 
   @Override
   public FolderDTO buildFolderStructure(List<Document> documents) {
-    FolderDTO root = new FolderDTO("Root");
+    FolderDTO root = new FolderDTO("root");
 
     for(Document document : documents){
       if(document == null || document.getFile_url() == null || document.getFile_url().isEmpty()){

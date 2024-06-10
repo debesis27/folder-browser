@@ -50,7 +50,7 @@
     <div class="folder-and-subfolders-div" th:if="${folder != null}">
       <div th:class="${isRoot} == 'true' ? 'root-folder tile folder-div' : 'tile folder-div'" th:onclick="'openFolder(this)'">
         <a href="javascript:void(0);">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>folder</title><path d="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z" /></svg>
+          <img th:src="@{/images/file-extensions/folder.svg}" alt="Folder Icon" />
           <h3 th:text="${folder.name != null ? folder.name : 'Unnamed Folder'}"></h3>
         </a>
       </div>
@@ -58,11 +58,10 @@
         <div class="subfolder-iter" th:each="subFolder : ${folder.subFolders}">
           <div th:replace="::folder(fragment='folder', folder=${subFolder}, isRoot='false')"></div>
         </div>
-        <div th:each="file : ${folder.files}" class="tile subfolder-iter" th:if="folder.files != null">
+        <div th:each="file : ${folder.files}" class="tile subfolder-iter file-iter" th:if="folder.files != null">
           <a th:href="${file.url}" target="_blank">
             <div>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>file-document</title><path d="M13,9H18.5L13,3.5V9M6,2H14L20,8V20A2,2 0 0,1 18,22H6C4.89,22 4,21.1 4,20V4C4,2.89 4.89,2 6,2M15,18V16H6V18H15M18,14V12H6V14H18Z" /></svg>
-              <h3 th:text="${file.name}"></h3>
+              <h3 th:text="${file.name}" th:onload="'addFileImage(this)'"></h3>
             </div>
           </a>
         </div>
