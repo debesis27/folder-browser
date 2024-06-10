@@ -3,7 +3,7 @@
 }
 
 body {
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: "Source Sans Pro";
   background-color: #f8f9fa;
   margin: 0;
   padding: 0;
@@ -70,6 +70,7 @@ button:focus {
   margin-right: 17px;
   cursor: pointer;
   background-color: #fff;
+  box-shadow: rgba(3, 3, 3, 0.14) 0px 2px 2px 0px, rgba(3, 3, 3, 0.12) 0px 1px 5px 0px, rgba(3, 3, 3, 0.2) 0px 3px 1px -2px;
 }
 
 .tile.root-folder {
@@ -107,6 +108,11 @@ button:focus {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.back svg {
+  fill: white;
+  height: 20px;
 }
 
 .subfolders-div {
