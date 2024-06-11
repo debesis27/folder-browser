@@ -31,7 +31,171 @@ button:focus {
   position: relative;
 }
 
-.back {
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #808000;
+  padding: 10px 20px;
+  color: white;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.logo {
+  height: 40px;
+  border-radius: 50%;
+  background-color: #191970;
+}
+
+.search-bar {
+  height: 40px;
+  padding: 5px 10px;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background-color: #a0a060;
+}
+
+.search-bar img {
+  height: 20px;
+  margin-right: 10px;
+}
+
+.search-bar input {
+  border: none;
+  background-color: transparent;
+  color: #e6e7c9; /* Change the text color to a lighter tone */
+  font-size: 14px;
+  width: 200px;
+  outline: none;
+}
+
+/* Search Result */
+.search-results-header {
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ddd;
+}
+
+#search-results-container {
+  padding: 20px;
+}
+
+.search-result-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.search-result-item img {
+  height: 20px;
+  margin-right: 10px;
+}
+
+.search-result-item .result-name {
+  font-weight: bold;
+  margin-right: 20px;
+}
+
+.search-result-item .result-path {
+  color: #888;
+}
+
+.back-button.hide {
+  display: none;
+}
+
+#searchResults.hide {
+  display: none;
+}
+
+#logoOnSearchBar.hide {
+  display: none;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+}
+
+.toolbar-button {
+  background-color: #808000;
+  border: none;
+  padding: 10px 20px;
+  margin-left: 10px;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toolbar-button img {
+  height: 20px;
+}
+
+.toolbar-button:hover {
+  background-color: #606000;
+}
+
+.toolbar-button:focus {
+  outline: none;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 40px;
+  background-color: white;
+  margin: 0 10px;
+}
+
+.file-specific-tools {
+  display: flex;
+  align-items: center;
+}
+
+.file-specific-tools.hide {
+  display: none;
+}
+
+.file-specific-tools .toolbar-button {
+  margin-left: 10px;
+}
+
+.folder-grid-view-container.hide {
+  display: none;
+}
+
+.navigation-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.back-button-container {
+  display: flex;
+  margin: 0px 27px 0px;
+  height: 100%;
+  align-items: center;
+}
+
+.back-button {
   font-size: 16px;
   border-radius: 50px;
   background: #808000;
@@ -39,7 +203,6 @@ button:focus {
   color: white;
   width: 40px;
   height: 40px;
-  margin: 0px 27px 0;
   outline: none !important;
   cursor: pointer;
   display: flex;
@@ -47,14 +210,12 @@ button:focus {
   justify-content: center;
 }
 
-.back svg {
-  fill: white;
+.back-button img {
   height: 20px;
 }
 
 .card-body {
   background-color: #fff;
-  padding: 20px;
   border-radius: 5px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
@@ -64,6 +225,7 @@ button:focus {
   padding: 0;
   list-style: none;
   display: flex;
+  flex-wrap: wrap;
   justify-content: left;
   align-items: center;
   margin-bottom: 20px;
@@ -71,8 +233,18 @@ button:focus {
 
 #breadcrumbs span {
   color: #808000;
-  font-size: 16px;
+  font-size: 18px;
+  white-space: nowrap;
   cursor: pointer;
+}
+
+#breadcrumbs span:hover {
+  text-decoration: underline;
+}
+
+#breadcrumbs b {
+  font-size: 18px;
+  margin: 0 5px;
 }
 
 /* For new JS logic */
@@ -101,6 +273,11 @@ button:focus {
   cursor: pointer;
   background-color: #fff;
   box-shadow: rgba(3, 3, 3, 0.14) 0px 2px 2px 0px, rgba(3, 3, 3, 0.12) 0px 1px 5px 0px, rgba(3, 3, 3, 0.2) 0px 3px 1px -2px;
+}
+
+.folder.selected {
+  border: 2px solid #0000ff;
+  background-color: #e6f0ff;
 }
 
 .folder:hover {

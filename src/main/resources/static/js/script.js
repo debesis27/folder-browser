@@ -47,6 +47,8 @@ let fileExtensionImageMap = {
 }
 
 let rootFolder;
+let selectedFolder = null;
+let selectedFolderElement = null;
 
 document.addEventListener("DOMContentLoaded", function() {
   fetch("/api/folders")
@@ -58,6 +60,29 @@ document.addEventListener("DOMContentLoaded", function() {
     .catch(error => {
       console.error("Error fetching folders from api: ", error);
     });
+
+  // Deselect when clicking outside
+  document.addEventListener("click", function(event) {
+    if (!event.target.closest('.folder') && !event.target.closest('.file-specific-tools')) {
+      deselectFolder();
+    }
+  });
+
+  // Search bar click
+  $("#searchInput").click(function() {
+    $(".folder-grid-view-container").addClass("hide");
+    $("#searchResults").removeClass("hide");
+    $("#logoOnSearchBar").addClass("hide");
+    $("#backButtonFromSearchResult").removeClass("hide");
+  });
+
+  // Back button from Search click
+  $("#backButtonFromSearchResult").click(function() {
+    $(".folder-grid-view-container").removeClass("hide");
+    $("#searchResults").addClass("hide");
+    $("#logoOnSearchBar").removeClass("hide");
+    $("#backButtonFromSearchResult").addClass("hide");
+  });
 })
 
 function openFolder(folder) {
@@ -77,7 +102,11 @@ function renderFolderBrowser(folder) {
 
     folderDiv.append(folderImage);
     folderDiv.append(folderName);
-    folderDiv.click(function() {
+    folderDiv.click(function(event) {
+      event.stopPropagation(); // Prevent the click from bubbling up
+      selectFolder(folderDiv, subFolder);
+    });
+    folderDiv.dblclick(function() {
       openFolder(subFolder);
     })
     
@@ -91,7 +120,11 @@ function renderFolderBrowser(folder) {
 
     fileDiv.append(fileImage);
     fileDiv.append(fileName);
-    fileDiv.click(function() {
+    fileDiv.click(function(event) {
+      event.stopPropagation(); // Prevent the click from bubbling up
+      selectFolder(fileDiv, file);
+    });
+    fileDiv.dblclick(function() {
       window.open(file.url, "_blank");
     })
 
@@ -151,7 +184,7 @@ function goBack() {
 }
 
 function getFileImageElementFromName(fileName) {
-  let extension = fileName.split('.').pop().trim();
+  let extension = fileName.split('.').pop().trim().toLowerCase();
   let extensionImage = getFileImage(extension);
   let imageURL = "/images/file-extensions/" + extensionImage + ".svg";
   let image = $("<img>").attr("src", imageURL);
@@ -164,9 +197,47 @@ function getFileImage(extension) {
   return image;
 }
 
-window.onload = function() {
-  let files = document.getElementsByClassName("file-iter");
-  for (let i = 0; i < files.length; i++) {
-    addFileImage(files[i]);
+function selectFolder(element, item) {
+  if (selectedFolder != null) {
+    if (selectedFolderElement == element) {
+      deselectFolder();
+      return;
+    }
+
+    deselectFolder();
   }
+
+  selectedFolder = item;
+  selectedFolderElement = element;
+  element.addClass("selected");
+  $(".file-specific-tools").removeClass("hide");
+}
+
+function deselectFolder() {
+  if (!selectedFolder) return;
+
+  selectedFolderElement.removeClass("selected");
+  $(".file-specific-tools").addClass("hide");
+  selectedFolder = null;
+  selectedFolderElement = null;
+}
+
+function renameFolder() {
+  // Implement rename functionality
+}
+
+function downloadFolder() {
+  // Implement download functionality
+}
+
+function moveFolder() {
+  // Implement move functionality
+}
+
+function copyFolder() {
+  // Implement copy functionality
+}
+
+function deleteFolder() {
+  // Implement delete functionality
 }

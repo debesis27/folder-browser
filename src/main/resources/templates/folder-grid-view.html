@@ -19,26 +19,74 @@
 
 </head>
 
-<body class="app sidebar-mini dark-left-menu sidenav-toggled">
-  <div id="mainContainer" class="col-md">
+<body>
+  <div id="mainContainer">
     <div class="card-body">
-      <div id="viewgridproject" class="tab-pane fade active show p-0">
 
-        <!-- Back Button -->
-        <div class="row mb-5">
-          <div class="col-md-9">
-            <button class="back" th:onclick="'goBack()'">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title></title><path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" /></svg>
-            </button>
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <div class="logo-container">
+            <button id="backButtonFromSearchResult" class="back-button hide"><img th:src="@{/images/back.svg}"></button>
+            <img th:src="@{/images/logo.svg}" alt="Logo" class="logo" id="logoOnSearchBar">
+          </div>
+          <div class="search-bar">
+            <img th:src="@{/images/search.svg}">
+            <input type="text" placeholder="Search..." class="search-input" id="searchInput">
           </div>
         </div>
+        <div class="toolbar-right">
+          <button class="toolbar-button" id="createButton"><img th:src="@{/images/toolbar-operations/folder-create.svg}"></button>
+          <button class="toolbar-button" id="uploadButton"><img th:src="@{/images/toolbar-operations/upload.svg}"></button>
 
-        <!-- Breadcrumb -->
-        <div id="breadcrumbs"></div>
+          <div class="file-specific-tools hide">
+            <div class="toolbar-divider"></div>
+
+            <button class="toolbar-button" id="renameButton" th:onclick="'renameFolder()'"><img th:src="@{/images/toolbar-operations/folder-rename.svg}"></button>
+            <button class="toolbar-button" id="downloadButton" th:onclick="'downloadFolder()'"><img th:src="@{/images/toolbar-operations/folder-download.svg}"></button>
+            <button class="toolbar-button" id="moveButton" th:onclick="'moveFolder()'"><img th:src="@{/images/toolbar-operations/folder-move.svg}"></button>
+            <button class="toolbar-button" id="copyButton" th:onclick="'copyFolder()'"><img th:src="@{/images/toolbar-operations/copy.svg}"></button>
+            <button class="toolbar-button" id="deleteButton" th:onclick="'deleteFolder()'"><img th:src="@{/images/toolbar-operations/folder-delete.svg}"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="folder-grid-view-container">
+
+        <div class="navigation-container">
+          <!-- Back Button -->
+          <div class="back-button-container">
+            <button class="back-button" th:onclick="'goBack()'"><img th:src="@{/images/back.svg}"></button>
+          </div>
+
+          <!-- Breadcrumb -->
+          <div id="breadcrumbs"></div>
+        </div>
 
         <!-- Folder Structure -->
         <div class="stage">
            <div id="folder-container"></div>
+        </div>
+      </div>
+
+      <!-- Search Results -->
+      <div id="searchResults" class="hide">
+        <div class="search-results-header">
+          <h3>Search Results</h3>
+        </div>
+        <div id="search-results-container">
+          <!-- Placeholder results -->
+          <div class="search-result-item">
+            <img src="/images/file-extensions/folder.svg" alt="Folder Icon">
+            <span class="result-name">Folder 1</span>
+            <span class="result-path">/path/to/folder1</span>
+          </div>
+          <div class="search-result-item">
+            <img src="/images/file-extensions/file-document.svg" alt="File Icon">
+            <span class="result-name">Document.pdf</span>
+            <span class="result-path">/path/to/document.pdf</span>
+          </div>
+          <!-- Add more placeholder results as needed -->
         </div>
       </div>
     </div>

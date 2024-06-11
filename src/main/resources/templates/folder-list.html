@@ -30,7 +30,6 @@
           <div th:replace="::folder(fragment='folder', folder=${subFolder}, level=${level + 1})"></div>
         </li>
         <li th:each="file : ${folder.files}" class="file" th:if="${folder.files != null}">
-          <!-- <span class="ml-4"><i class="fa fa-file"></i> <span th:text="${file}"></span></span> -->
           <a th:href="${file.url}" th:text="${file.name}" target="_blank"><i class="fa fa-file"></i></a>
         </li>
       </ul>
