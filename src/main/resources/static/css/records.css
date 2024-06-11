@@ -12,7 +12,7 @@ body {
 
 h3 {
   font-weight: 400;
-  font-size: 16px;
+  font-size: 18px;
   margin: 0;
 }
 
@@ -29,64 +29,6 @@ button:focus {
   max-width: 100%;
   margin: 30px 2%;
   position: relative;
-}
-
-.folder-wrap {
-  display: flex;
-  flex-wrap: wrap;
-  position: relative;
-  width: 100%;
-  transition: .365s all cubic-bezier(.4, 0, .2, 1);
-  pointer-events: none;
-  opacity: 0;
-  top: 0;
-}
-
-.folder-wrap.level-current {
-  transform: scale(1);
-  pointer-events: all;
-  opacity: 1;
-  position: relative;
-  height: auto;
-  overflow: visible;
-}
-
-/* .folder-wrap.level-up {
-  transform: scale(1.2);
-}
-
-.folder-wrap.level-down {
-  transform: scale(0.8);
-} */
-
-.tile {
-  border-radius: 3px;
-  margin-bottom: 23px;
-  text-align: center;
-  border: 1px solid #eeeeee;
-  transition: 0.2s all cubic-bezier(0.4, 0.0, 0.2, 1);
-  position: relative;
-  padding: 15px;
-  margin-right: 17px;
-  cursor: pointer;
-  background-color: #fff;
-  box-shadow: rgba(3, 3, 3, 0.14) 0px 2px 2px 0px, rgba(3, 3, 3, 0.12) 0px 1px 5px 0px, rgba(3, 3, 3, 0.2) 0px 3px 1px -2px;
-}
-
-.tile.root-folder {
-  display: flex;
-  justify-content: center;
-  width: calc(20vw - 47px);
-  margin: 49px 0px 0px;
-}
-
-.tile:hover {
-  box-shadow: 0px 7px 5px -6px rgba(0, 0, 0, 0.12);
-}
-
-.tile img {
-  height: 55px;
-  margin-bottom: 10px;
 }
 
 .back {
@@ -108,36 +50,6 @@ button:focus {
 .back svg {
   fill: white;
   height: 20px;
-}
-
-.subfolders-div {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 17px;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: calc(100vw - 80px);
-  background: white;
-  z-index: 1;
-  margin-right: 80px;
-}
-
-.subfolders-div.collapse {
-  display: none !important;
-}
-
-.subfolder-iter.collapse {
-  display: none !important;
-}
-
-.folder-div.collapse {
-  display: none !important;
-}
-
-.tile a {
-  text-decoration: none;
-  color: inherit;
 }
 
 .card-body {
@@ -163,27 +75,64 @@ button:focus {
   cursor: pointer;
 }
 
+/* For new JS logic */
+#folder-container {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 17px;
+  transition: grid-template-columns 0.3s ease-in-out;
+  top: 0;
+  left: 0;
+  width: calc(100vw - 80px);
+  background: white;
+  z-index: 1;
+  margin-right: 80px;
+}
+
+.folder {
+  border-radius: 3px;
+  margin-bottom: 23px;
+  text-align: center;
+  border: 1px solid #eeeeee;
+  transition: 0.2s all cubic-bezier(0.4, 0.0, 0.2, 1);
+  position: relative;
+  padding: 15px;
+  margin-right: 17px;
+  cursor: pointer;
+  background-color: #fff;
+  box-shadow: rgba(3, 3, 3, 0.14) 0px 2px 2px 0px, rgba(3, 3, 3, 0.12) 0px 1px 5px 0px, rgba(3, 3, 3, 0.2) 0px 3px 1px -2px;
+}
+
+.folder:hover {
+  box-shadow: 0px 7px 5px -6px rgba(0, 0, 0, 0.12);
+}
+
+.folder img {
+  height: 55px;
+  margin-bottom: 10px;
+}
+
 /* Media Queries for Responsive Design */
 @media (max-width: 1200px) {
-  .subfolders-div {
+  #folder-container {
     grid-template-columns: repeat(4, 1fr); /* 4 columns */
   }
 }
 
 @media (max-width: 992px) {
-  .subfolders-div {
+  #folder-container {
     grid-template-columns: repeat(3, 1fr); /* 3 columns */
   }
 }
 
 @media (max-width: 768px) {
-  .subfolders-div {
+  #folder-container {
     grid-template-columns: repeat(2, 1fr); /* 2 columns */
   }
 }
 
 @media (max-width: 576px) {
-  .subfolders-div {
+  #folder-container {
     grid-template-columns: 1fr; /* 1 column */
   }
 }

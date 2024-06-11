@@ -5,6 +5,7 @@ let fileExtensionImageMap = {
   "pdf" : "file-pdf",
   "xls" : "file-excel",
   "xlsx" : "file-excel",
+  "csv" : "file-excel",
   "ppt" : "file-powerpoint",
   "pptx" : "file-powerpoint",
   "jpg" : "file-image",
@@ -45,135 +46,117 @@ let fileExtensionImageMap = {
   "cmd" : "file-system",
 }
 
+let rootFolder;
+
+document.addEventListener("DOMContentLoaded", function() {
+  fetch("/api/folders")
+    .then(response => response.json())
+    .then(data => {
+      rootFolder = data;
+      openFolder(rootFolder);
+    })
+    .catch(error => {
+      console.error("Error fetching folders from api: ", error);
+    });
+})
+
+function openFolder(folder) {
+  renderFolderBrowser(folder);
+  addBreadCrumb(folder.name);
+  showBreadcrumbs();
+}
+
+function renderFolderBrowser(folder) {
+  const folderBrowser = $("#folder-container");
+  folderBrowser.empty();
+
+  folder.subFolders.forEach(subFolder => {
+    let folderDiv = $("<div></div>").addClass("folder");
+    let folderName = $("<h3></h3>").text(subFolder.name);
+    let folderImage = $("<img>").attr("src", "/images/file-extensions/folder.svg");
+
+    folderDiv.append(folderImage);
+    folderDiv.append(folderName);
+    folderDiv.click(function() {
+      openFolder(subFolder);
+    })
+    
+    folderBrowser.append(folderDiv);
+  })
+
+  folder.files.forEach(file => {
+    let fileDiv = $("<div></div>").addClass("folder");
+    let fileName = $("<h3></h3>").text(file.name);
+    let fileImage = getFileImageElementFromName(file.name);
+
+    fileDiv.append(fileImage);
+    fileDiv.append(fileName);
+    fileDiv.click(function() {
+      window.open(file.url, "_blank");
+    })
+
+    folderBrowser.append(fileDiv);
+  })
+}
+
+function addBreadCrumb(folderName) {
+  breadcrumbs.push(folderName);
+}
+
 function showBreadcrumbs() {
   const breadcrumbsDiv = $("#breadcrumbs");
 
   breadcrumbsDiv.empty();
 
   breadcrumbs.forEach(function(breadcrumb, index) {
-    let span = $("<span></span>").text(breadcrumb.find("h3").text());
+    let span = $("<span></span>").text(breadcrumb);
 
     span.click(function() {
-      removeBreadCrumbTill(breadcrumb.find("h3").text());
+      const folder = removeBreadCrumbTill(index + 1);
+      renderFolderBrowser(folder);
       showBreadcrumbs();
     })
 
     breadcrumbsDiv.append(span);
 
     if (index < breadcrumbs.length - 1) {
-      breadcrumbsDiv.append("&nbsp;>&nbsp;");
+      breadcrumbsDiv.append("&nbsp;<b>></b>&nbsp;");
     }
   })
 }
 
-function openFolder(element) {
-  element = $(element);
-  addBreadCrumb(element);
-  showBreadcrumbs();
-}
+function findFolderByPath(path) {
+  let folder = rootFolder;
 
-function addBreadCrumb(element) {
-  breadcrumbs.push(element);
-
-  breadcrumbs.forEach(element => {
-    console.log(element.find("h3").text());
-  });
-  console.log("----");
-
-  let folderName = element.find("h3").text();
-
-  if (folderName == "root") {
-    element.toggleClass("collapse");
-    element.next(".subfolders-div").toggleClass("collapse");
-    return;
+  for(let i = 1; i < path.length; i++) {
+    folder = folder.subFolders.find(subFolder => subFolder.name == path[i]);
   }
 
-  let grandparent = element.parent();
-  let greatgrandparent = grandparent.parent();
-
-  // Collapsing all the other folders except the selected one
-  greatgrandparent.toggleClass("collapse");
-  greatgrandparent.parent().children(".subfolder-iter").toggleClass("collapse");
-
-  // Showing all the subfolders
-  grandparent.children().each(function () {
-    $(this).toggleClass("collapse");
-  });
-
-  adjustSubfolderPosition(element);
+  return folder;
 }
 
-function adjustSubfolderPosition(element) {
-  const subfoldersDiv = element.next(".subfolders-div");
-  const offsetTop = element.offset().top;
-  const offsetLeft = element.offset().left;
-
-  subfoldersDiv.css({
-    top: `${offsetTop}px`,
-    left: `${offsetLeft}px`,
-  });
-}
-
-function removeBreadCrumbTill(elementName) {
-  for (let i = breadcrumbs.length - 1; i >= 0; i--) {
-    if (breadcrumbs[i].find("h3").text() == elementName) {
-      break;
-    }
-    removeBreadCrumb();
-  }
-}
-
-function removeBreadCrumb() {
-  if (breadcrumbs.length == 0) {
-    return;
-  }
-
-  element = breadcrumbs.pop();
-
-  breadcrumbs.forEach(element => {
-    console.log(element.find("h3").text());
-  });
-  console.log("----");
-
-  // root directory case
-  if (breadcrumbs.length == 0) {
-    element.next(".subfolders-div").toggleClass("collapse");
-    element.toggleClass("collapse");
-    return;
-  }
-
-  let grandparent = element.parent();
-  let greatgrandparent = grandparent.parent();
-
-  // Collapsing all the subfolders
-  grandparent.children().each(function () {
-    $(this).toggleClass("collapse");
-  });
-
-  // Showing all the folders
-  greatgrandparent.toggleClass("collapse");
-  greatgrandparent.parent().children(".subfolder-iter").toggleClass("collapse");
+function removeBreadCrumbTill(index) {
+  breadcrumbs = breadcrumbs.slice(0, index);
+  return findFolderByPath(breadcrumbs);
 }
 
 function goBack() {
-  removeBreadCrumb();
+  if (breadcrumbs.length == 1) {
+    return;
+  }
+
+  folder = removeBreadCrumbTill(breadcrumbs.length - 1);
+  renderFolderBrowser(folder);
   showBreadcrumbs();
 }
 
-$(window).resize(function() {
-  // Adjust the position of all open subfolders on window resize
-  breadcrumbs.forEach(element => {
-    adjustSubfolderPosition(element);
-  });
-});
-
-function addFileImage(element) {
-  let extension = $(element).text().split('.').pop().trim();
+function getFileImageElementFromName(fileName) {
+  let extension = fileName.split('.').pop().trim();
   let extensionImage = getFileImage(extension);
   let imageURL = "/images/file-extensions/" + extensionImage + ".svg";
   let image = $("<img>").attr("src", imageURL);
 
-  $(element).prepend(image);
+  return image;
 }
 
 function getFileImage(extension) {
