@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 function openFolder(folder) {
   renderFolderBrowser(folder);
-  addBreadCrumb(folder.name);
+  addBreadCrumb(folder.parent.name);
   showBreadcrumbs();
 }
 
@@ -95,28 +95,28 @@ function renderFolderBrowser(folder) {
   const folderBrowser = $("#folder-container");
   folderBrowser.empty();
 
-  folder.subFolders.forEach(subFolder => {
+  folder.childFolders.forEach(childFolder => {
     let folderDiv = $("<div></div>").addClass("folder");
-    let folderName = $("<h3></h3>").text(subFolder.name);
+    let folderName = $("<h3></h3>").text(childFolder.parent.name);
     let folderImage = $("<img>").attr("src", "/images/file-extensions/folder.svg");
 
     folderDiv.append(folderImage);
     folderDiv.append(folderName);
     folderDiv.click(function(event) {
       event.stopPropagation(); // Prevent the click from bubbling up
-      selectFolder(folderDiv, subFolder);
+      selectFolder(folderDiv, childFolder);
     });
     folderDiv.dblclick(function() {
-      openFolder(subFolder);
+      openFolder(childFolder);
     })
     
     folderBrowser.append(folderDiv);
   })
 
-  folder.files.forEach(file => {
+  folder.childFiles.forEach(file => {
     let fileDiv = $("<div></div>").addClass("folder");
     let fileName = $("<h3></h3>").text(file.name);
-    let fileImage = getFileImageElementFromName(file.name);
+    let fileImage = getFileImageElement(file.type);
 
     fileDiv.append(fileImage);
     fileDiv.append(fileName);
@@ -162,7 +162,7 @@ function findFolderByPath(path) {
   let folder = rootFolder;
 
   for(let i = 1; i < path.length; i++) {
-    folder = folder.subFolders.find(subFolder => subFolder.name == path[i]);
+    folder = folder.childFolders.find(childFolder => childFolder.parent.name == path[i]);
   }
 
   return folder;
@@ -183,17 +183,11 @@ function goBack() {
   showBreadcrumbs();
 }
 
-function getFileImageElementFromName(fileName) {
-  let extension = fileName.split('.').pop().trim().toLowerCase();
-  let extensionImage = getFileImage(extension);
+function getFileImageElement(fileType) {
+  let extensionImage = fileExtensionImageMap[fileType] == undefined ? "file-document" : fileExtensionImageMap[fileType];
   let imageURL = "/images/file-extensions/" + extensionImage + ".svg";
   let image = $("<img>").attr("src", imageURL);
 
-  return image;
-}
-
-function getFileImage(extension) {
-  let image = fileExtensionImageMap[extension] == undefined ? "file-document" : fileExtensionImageMap[extension];
   return image;
 }
 
