@@ -126,6 +126,10 @@ button:focus {
   display: none;
 }
 
+.toolbar-right.hide {
+  display: none;
+}
+
 .toolbar-right {
   display: flex;
   align-items: center;

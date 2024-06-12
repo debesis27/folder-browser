@@ -24,7 +24,7 @@ public class DocumentServiceImpl implements DocumentService {
 
   @Override
   public FileSystemItemDTO buildFolderStructure(List<Document> documents) {
-    FileSystemItem rootFolder = new FileSystemItem("root", "", "folder");
+    FileSystemItem rootFolder = new FileSystemItem("root", "root", "folder");
     FileSystemItemDTO root = new FileSystemItemDTO(rootFolder);
 
     for(Document document : documents){
@@ -48,7 +48,7 @@ public class DocumentServiceImpl implements DocumentService {
 
       String[] folders = file.split("/");
       FileSystemItemDTO currentSubFolder = root;
-      String folderUrl = "";
+      String folderUrl = "root";
 
       for(int i = 1; i < folders.length - 1; i++){
         if(folders[i].isEmpty()){
@@ -58,7 +58,7 @@ public class DocumentServiceImpl implements DocumentService {
         currentSubFolder = currentSubFolder.addChildFolder(folders[i], folderUrl);
       }
 
-      currentSubFolder.addFile(folders[folders.length - 1], file, getFileExtension(folders[folders.length - 1]));
+      currentSubFolder.addFile(folders[folders.length - 1], "root" + file, getFileExtension(folders[folders.length - 1]));
     }
 
     return root;

@@ -1,5 +1,5 @@
-let breadcrumbs = [];
 let fileExtensionImageMap = {
+  "folder": "folder",
   "doc" : "file-word",
   "docx" : "file-word",
   "pdf" : "file-pdf",
@@ -47,14 +47,16 @@ let fileExtensionImageMap = {
 }
 
 let rootFolder;
-let selectedFolder = null;
-let selectedFolderElement = null;
+let currentFolder;
+let selectedFileSystemItem = null;
+let selectedFileSystemItemElement = null;
 
 document.addEventListener("DOMContentLoaded", function() {
   fetch("/api/folders")
     .then(response => response.json())
     .then(data => {
       rootFolder = data;
+      currentFolder = rootFolder;
       openFolder(rootFolder);
     })
     .catch(error => {
@@ -68,8 +70,19 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   });
 
+  // Search bar input change
+  $("#searchInput").on("input", debounce(function() {
+    const query = $(this).val().trim();
+    if (query) {
+      searchFileSystemItems(query);
+    } else {
+      $("#search-results-container").empty();
+    }
+  }, 400));
+
   // Search bar click
   $("#searchInput").click(function() {
+    $(".toolbar-right").addClass("hide");
     $(".folder-grid-view-container").addClass("hide");
     $("#searchResults").removeClass("hide");
     $("#logoOnSearchBar").addClass("hide");
@@ -78,6 +91,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
   // Back button from Search click
   $("#backButtonFromSearchResult").click(function() {
+    $(".toolbar-right").removeClass("hide");
     $(".folder-grid-view-container").removeClass("hide");
     $("#searchResults").addClass("hide");
     $("#logoOnSearchBar").removeClass("hide");
@@ -85,10 +99,20 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 })
 
+function debounce(func, delay) {
+  let timeout;
+  return function() {
+    const context = this;
+    const args = arguments;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(context, args), delay);
+  }
+}
+
 function openFolder(folder) {
+  currentFolder = folder;
   renderFolderBrowser(folder);
-  addBreadCrumb(folder.parent.name);
-  showBreadcrumbs();
+  showBreadcrumbs(folder.parent.url);
 }
 
 function renderFolderBrowser(folder) {
@@ -132,22 +156,19 @@ function renderFolderBrowser(folder) {
   })
 }
 
-function addBreadCrumb(folderName) {
-  breadcrumbs.push(folderName);
-}
-
-function showBreadcrumbs() {
+function showBreadcrumbs(folderUrl) {
   const breadcrumbsDiv = $("#breadcrumbs");
-
   breadcrumbsDiv.empty();
+
+  let breadcrumbs = folderUrl.split("/");
+  breadcrumbs = breadcrumbs.slice(0, breadcrumbs.length);
 
   breadcrumbs.forEach(function(breadcrumb, index) {
     let span = $("<span></span>").text(breadcrumb);
 
     span.click(function() {
-      const folder = removeBreadCrumbTill(index + 1);
-      renderFolderBrowser(folder);
-      showBreadcrumbs();
+      const folder = findFolderByPath(breadcrumbs.slice(0, index + 1));
+      openFolder(folder);
     })
 
     breadcrumbsDiv.append(span);
@@ -168,19 +189,11 @@ function findFolderByPath(path) {
   return folder;
 }
 
-function removeBreadCrumbTill(index) {
-  breadcrumbs = breadcrumbs.slice(0, index);
-  return findFolderByPath(breadcrumbs);
-}
-
 function goBack() {
-  if (breadcrumbs.length == 1) {
-    return;
-  }
+  if(currentFolder.parent.url == rootFolder.parent.url) return;
 
-  folder = removeBreadCrumbTill(breadcrumbs.length - 1);
-  renderFolderBrowser(folder);
-  showBreadcrumbs();
+  const folder = findFolderByPath(currentFolder.parent.url.split("/").slice(0, -1));
+  openFolder(folder);
 }
 
 function getFileImageElement(fileType) {
@@ -192,8 +205,8 @@ function getFileImageElement(fileType) {
 }
 
 function selectFolder(element, item) {
-  if (selectedFolder != null) {
-    if (selectedFolderElement == element) {
+  if (selectedFileSystemItem != null) {
+    if (selectedFileSystemItemElement == element) {
       deselectFolder();
       return;
     }
@@ -201,19 +214,19 @@ function selectFolder(element, item) {
     deselectFolder();
   }
 
-  selectedFolder = item;
-  selectedFolderElement = element;
+  selectedFileSystemItem = item;
+  selectedFileSystemItemElement = element;
   element.addClass("selected");
   $(".file-specific-tools").removeClass("hide");
 }
 
 function deselectFolder() {
-  if (!selectedFolder) return;
+  if (!selectedFileSystemItem) return;
 
-  selectedFolderElement.removeClass("selected");
+  selectedFileSystemItemElement.removeClass("selected");
   $(".file-specific-tools").addClass("hide");
-  selectedFolder = null;
-  selectedFolderElement = null;
+  selectedFileSystemItem = null;
+  selectedFileSystemItemElement = null;
 }
 
 function renameFolder() {
@@ -234,4 +247,47 @@ function copyFolder() {
 
 function deleteFolder() {
   // Implement delete functionality
+}
+
+function searchFileSystemItems(query) {
+  fetch("/api/folders/search?folderName=" + query)
+    .then(response => response.json())
+    .then(data => {
+      displaySearchResults(data);
+    })
+    .catch(error => {
+      console.error("Error fetching search results from api: ", error);
+    });
+}
+
+function displaySearchResults(results) {
+  const searchResultsContainer = $("#search-results-container");
+  searchResultsContainer.empty();
+
+  results.folders.forEach(folder => {
+    let searchResultItem = getSearchResultItemElement(folder, function() {
+      // TODO: Implement search result folder click
+    });
+    searchResultsContainer.append(searchResultItem);
+  })
+
+  results.files.forEach(file => {
+    let searchResultItem = getSearchResultItemElement(file, function() {
+      window.open(file.url, "_blank");
+    });
+    searchResultsContainer.append(searchResultItem);
+  })
+}
+
+function getSearchResultItemElement(fileSystemItem, onClickFunction){
+  let resultItem = $("<div></div>").addClass("search-result-item");
+  let resultItemName = $("<h3></h3>").text(fileSystemItem.name);
+  let resultItemImage = getFileImageElement(fileSystemItem.type);
+  let resultItemPath = $("<p></p>").text(fileSystemItem.url);
+
+  resultItem.append(resultItemImage, resultItemName, resultItemPath);
+  resultItem.click(function() {
+    onClickFunction();
+  });
+  return resultItem;
 }
