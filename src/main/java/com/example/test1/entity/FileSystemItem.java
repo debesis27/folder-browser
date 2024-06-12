@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FileDTO {
+public class FileSystemItem {
   private String name;
   private String url;
+  private String type;
 }
