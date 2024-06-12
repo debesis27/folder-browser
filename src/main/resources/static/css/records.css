@@ -90,14 +90,15 @@ button:focus {
 }
 
 #search-results-container {
-  padding: 20px;
+  padding: 10px 20px;
 }
 
 .search-result-item {
   display: flex;
   align-items: center;
-  padding: 10px 0;
+  padding: 20px 0;
   border-bottom: 1px solid #eee;
+  cursor: pointer;
 }
 
 .search-result-item img {
@@ -108,10 +109,13 @@ button:focus {
 .search-result-item .result-name {
   font-weight: bold;
   margin-right: 20px;
+  width: 30%;
+  overflow-wrap: break-word;
 }
 
 .search-result-item .result-path {
   color: #888;
+  overflow-wrap: break-word;
 }
 
 .back-button.hide {

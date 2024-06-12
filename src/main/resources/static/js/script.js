@@ -91,13 +91,20 @@ document.addEventListener("DOMContentLoaded", function() {
 
   // Back button from Search click
   $("#backButtonFromSearchResult").click(function() {
-    $(".toolbar-right").removeClass("hide");
-    $(".folder-grid-view-container").removeClass("hide");
-    $("#searchResults").addClass("hide");
-    $("#logoOnSearchBar").removeClass("hide");
-    $("#backButtonFromSearchResult").addClass("hide");
+    toggleSearchResults();
   });
 })
+
+function toggleSearchResults() {
+  $("#searchInput").val("");
+  $("#search-results-container").empty();
+
+  $(".toolbar-right").toggleClass("hide");
+  $(".folder-grid-view-container").toggleClass("hide");
+  $("#searchResults").toggleClass("hide");
+  $("#logoOnSearchBar").toggleClass("hide");
+  $("#backButtonFromSearchResult").toggleClass("hide");
+}
 
 function debounce(func, delay) {
   let timeout;
@@ -266,7 +273,9 @@ function displaySearchResults(results) {
 
   results.folders.forEach(folder => {
     let searchResultItem = getSearchResultItemElement(folder, function() {
-      // TODO: Implement search result folder click
+      currentFolder = findFolderByPath(folder.url.split("/").slice(1));
+      toggleSearchResults();
+      openFolder(currentFolder);
     });
     searchResultsContainer.append(searchResultItem);
   })
@@ -281,9 +290,9 @@ function displaySearchResults(results) {
 
 function getSearchResultItemElement(fileSystemItem, onClickFunction){
   let resultItem = $("<div></div>").addClass("search-result-item");
-  let resultItemName = $("<h3></h3>").text(fileSystemItem.name);
+  let resultItemName = $("<span></span>").text(fileSystemItem.name).addClass("result-name");
   let resultItemImage = getFileImageElement(fileSystemItem.type);
-  let resultItemPath = $("<p></p>").text(fileSystemItem.url);
+  let resultItemPath = $("<span></span>").text(fileSystemItem.url).addClass("result-path");
 
   resultItem.append(resultItemImage, resultItemName, resultItemPath);
   resultItem.click(function() {
