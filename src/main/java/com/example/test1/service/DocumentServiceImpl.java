@@ -23,7 +23,7 @@ public class DocumentServiceImpl implements DocumentService {
       return null;
     }
 
-    folderNameString.toLowerCase();
+    folderNameString = folderNameString.toLowerCase();
     searchFolderPathByNameHelper(folderNameString, rootFolder, "", resultFolderList, resultFileList);
     return new FolderAndFileResponseDTO(resultFolderList, resultFileList);
   }
