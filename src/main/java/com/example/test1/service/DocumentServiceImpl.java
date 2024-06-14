@@ -15,7 +15,6 @@ public class DocumentServiceImpl implements DocumentService {
   @Autowired
   private DocumentRepository documentRepository;
 
-  @Override
   public FolderAndFileResponseDTO searchAllFolderPathByName(String folderNameString, FileSystemItemDTO rootFolder) {
     List<FileSystemItem> resultFolderList = new ArrayList<>();
     List<FileSystemItem> resultFileList = new ArrayList<>();
