@@ -156,6 +156,7 @@ function renderFolderBrowser(folder) {
       selectFolder(fileDiv, file);
     });
     fileDiv.dblclick(function() {
+      console.log(file.url);
       window.open(file.url, "_blank");
     })
 
@@ -167,7 +168,7 @@ function showBreadcrumbs(folderUrl) {
   const breadcrumbsDiv = $("#breadcrumbs");
   breadcrumbsDiv.empty();
 
-  let breadcrumbs = folderUrl.split("/");
+  let breadcrumbs = folderUrl.split("\\");
   breadcrumbs = breadcrumbs.slice(0, breadcrumbs.length);
 
   breadcrumbs.forEach(function(breadcrumb, index) {
@@ -190,6 +191,8 @@ function findFolderByPath(path) {
   let folder = rootFolder;
 
   for(let i = 1; i < path.length; i++) {
+    console.log(folder);
+    console.log(path[i]);
     folder = folder.childFolders.find(childFolder => childFolder.parent.name == path[i]);
   }
 
@@ -199,7 +202,7 @@ function findFolderByPath(path) {
 function goBack() {
   if(currentFolder.parent.url == rootFolder.parent.url) return;
 
-  const folder = findFolderByPath(currentFolder.parent.url.split("/").slice(0, -1));
+  const folder = findFolderByPath(currentFolder.parent.url.split("\\").slice(0, -1));
   openFolder(folder);
 }
 
@@ -277,7 +280,7 @@ function displaySearchResults(results) {
 
   results.folders.forEach(folder => {
     let searchResultItem = getSearchResultItemElement(folder, function() {
-      currentFolder = findFolderByPath(folder.url.split("/").slice(1));
+      currentFolder = findFolderByPath(folder.url.split("\\").slice(0));
       toggleSearchResults();
       openFolder(currentFolder);
     });
@@ -286,6 +289,8 @@ function displaySearchResults(results) {
 
   results.files.forEach(file => {
     let searchResultItem = getSearchResultItemElement(file, function() {
+      file.url = "/file?path=" + encodeURIComponent(file.url);
+      console.log(file.url);
       window.open(file.url, "_blank");
     });
     searchResultsContainer.append(searchResultItem);

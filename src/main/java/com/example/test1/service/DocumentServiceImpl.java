@@ -23,14 +23,19 @@ public class DocumentServiceImpl implements DocumentService {
       return null;
     }
 
+    folderNameString.toLowerCase();
     searchFolderPathByNameHelper(folderNameString, rootFolder, "", resultFolderList, resultFileList);
     return new FolderAndFileResponseDTO(resultFolderList, resultFileList);
   }
 
   private void searchFolderPathByNameHelper(String folderNameString, FileSystemItemDTO currentFolder, String path, List<FileSystemItem> resultFolderList, List<FileSystemItem> resultFileList) {
-    path += "/" + currentFolder.getParent().getName();
+    if(path.isEmpty()){
+      path = currentFolder.getParent().getName();
+    }else{
+      path += "\\" + currentFolder.getParent().getName();
+    }
 
-    if(currentFolder.getParent().getName().contains(folderNameString)){
+    if(currentFolder.getParent().getName().toLowerCase().contains(folderNameString)){
       resultFolderList.add(new FileSystemItem(currentFolder.getParent().getName(), path, "folder"));
     }
 
@@ -40,8 +45,8 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     for(FileSystemItem file : currentFolder.getChildFiles()){
-      if(file.getName().contains(folderNameString)){
-        resultFileList.add(new FileSystemItem(file.getName(), path + "/" + file.getName(), file.getType()));
+      if(file.getName().toLowerCase().contains(folderNameString)){
+        resultFileList.add(new FileSystemItem(file.getName(), path + "\\" + file.getName(), file.getType()));
       }
     }
   }
