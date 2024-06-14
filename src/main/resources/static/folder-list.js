@@ -12,5 +12,3 @@ function toggleFolder(element) {
       $icon.removeClass('fa-folder-open').addClass('fa-folder');
   }
 }
-
-console.log("Document is ready");

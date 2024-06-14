@@ -235,3 +235,7 @@ function copyFolder() {
 function deleteFolder() {
   // Implement delete functionality
 }
+
+function openFile() {
+  // Implement open file functionality
+}
