@@ -22,15 +22,15 @@
   <th:block th:fragment="folder (folder, level)">
     <div th:if="${folder != null}" th:style="'margin-left: ' + ${level * 20} + 'px'">
       <a href="javascript:void(0);" class="folder-toggle" th:onclick="'toggleFolder(this)'">
-        <i class="fa fa-folder" th:if="${folder.name != null}"></i>
-        <span th:text="${folder.name != null ? folder.name : 'Unnamed Folder'}"></span>
+        <i class="fa fa-folder" th:if="${folder.parent.name != null}"></i>
+        <span th:text="${folder.parent.name != null ? folder.parent.name : 'Unnamed Folder'}"></span>
       </a>
-      <ul class="list-unstyled collapse" th:if="${folder.subFolders != null}">
-        <li th:each="subFolder : ${folder.subFolders}">
-          <div th:replace="::folder(fragment='folder', folder=${subFolder}, level=${level + 1})"></div>
+      <ul class="list-unstyled collapse" th:if="${folder.childFolders != null}">
+        <li th:each="childFolder : ${folder.childFolders}">
+          <div th:replace="::folder(fragment='folder', folder=${childFolder}, level=${level + 1})"></div>
         </li>
-        <li th:each="file : ${folder.files}" class="file" th:if="${folder.files != null}">
-          <a th:href="${file.url}" th:text="${file.name}" target="_blank"><i class="fa fa-file"></i></a>
+        <li th:each="childfile : ${folder.childFiles}" class="file" th:if="${folder.childFiles != null}">
+          <a th:href="${childfile.url}" th:text="${childfile.name}" target="_blank"><i class="fa fa-file"></i></a>
         </li>
       </ul>
     </div>

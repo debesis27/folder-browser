@@ -256,6 +256,10 @@ function deleteFolder() {
   // Implement delete functionality
 }
 
+function openFile() {
+  // Implement open file functionality
+}
+ 
 function searchFileSystemItems(query) {
   fetch("/api/folders/search?folderName=" + query)
     .then(response => response.json())

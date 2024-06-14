@@ -6,23 +6,18 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.example.test1.service.DocumentServiceImpl;
+import com.example.test1.service.FileScanServiceImpl;
 
 @Controller
 @RequestMapping("/")
 public class WebController {
-  @Autowired
-  private DocumentServiceImpl documentService;
 
-  @GetMapping("/files")
-  public String getAllFiles(Model model) {
-    model.addAttribute("files", documentService.getAllDocuments());
-    return "document-list";
-  }
+  @Autowired
+  private FileScanServiceImpl fileScanService;
 
   @GetMapping("/folders")
   public String getFolderStructure(Model model) {
-    model.addAttribute("rootFolder", documentService.buildFolderStructure(documentService.getAllDocuments()));
+    model.addAttribute("rootFolder", fileScanService.scanConfiguredFolder());
     return "folder-list";
   }
 

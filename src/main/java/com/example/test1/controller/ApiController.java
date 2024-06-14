@@ -10,20 +10,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.example.test1.entity.FolderAndFileResponseDTO;
 import com.example.test1.entity.FileSystemItemDTO;
 import com.example.test1.service.DocumentServiceImpl;
+import com.example.test1.service.FileScanServiceImpl;
+
 import org.springframework.web.bind.annotation.RequestParam;
 
 
 @Controller
 @RequestMapping("/api")
 public class ApiController {
+  private FileSystemItemDTO rootFolder = null;
   @Autowired
   private DocumentServiceImpl documentService;
-  private FileSystemItemDTO rootFolder = null;
+
+  @Autowired
+  private FileScanServiceImpl fileScanService;
 
   @GetMapping("/folders")
   public ResponseEntity<FileSystemItemDTO> getFolderList() {
     if(rootFolder == null){
-      rootFolder = documentService.buildFolderStructure(documentService.getAllDocuments());
+      rootFolder = fileScanService.scanConfiguredFolder();
     }
     return new ResponseEntity<>(rootFolder, HttpStatus.OK);
   }
@@ -31,7 +36,7 @@ public class ApiController {
   @GetMapping("/folders/search")
   public ResponseEntity<FolderAndFileResponseDTO> getAllFolderPathByName(@RequestParam String folderName) {
     if(rootFolder == null){
-      rootFolder = documentService.buildFolderStructure(documentService.getAllDocuments());
+      rootFolder = fileScanService.scanConfiguredFolder();
     }
     
     FolderAndFileResponseDTO path = documentService.searchAllFolderPathByName(folderName, rootFolder);

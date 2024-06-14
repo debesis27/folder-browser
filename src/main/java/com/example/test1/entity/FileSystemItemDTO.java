@@ -24,32 +24,29 @@ public class FileSystemItemDTO {
     return childFolders;
   }
 
-  public FileSystemItemDTO addChildFolder(String subfolderName, String subfolderUrl){
-    for(FileSystemItemDTO subfolder : this.childFolders){
-      if(subfolder.parent.getName().equals(subfolderName)){
-        return subfolder;
+  public void addChildFolder(FileSystemItemDTO newChildFolder){
+    for(FileSystemItemDTO childfolder : this.childFolders){
+      if(childfolder.parent.getName().equals(newChildFolder.getParent().getName())){
+        return;
       }
     }
 
-    FileSystemItem newSubFolder = new FileSystemItem(subfolderName, subfolderUrl, "folder");
-    FileSystemItemDTO newChildFolder = new FileSystemItemDTO(newSubFolder);
     this.childFolders.add(newChildFolder);
-    return newChildFolder;
+    return;
   }
 
   public List<FileSystemItem> getChildFiles(){
     return childFiles;
   }
 
-  public void addFile(String fileName, String fileUrl, String fileType){
+  public void addChildFile(FileSystemItem newChildFile){
     for(FileSystemItem file : this.childFiles){
-      if(file.getName().equals(fileName)){
-        System.out.println("File named: " + fileName + " already exists in folder named: " + this.parent.getName() + ". Skipping...");
+      if(file.getName().equals(newChildFile.getName())){
+        System.out.println("File named: " + newChildFile.getName() + " already exists in folder named: " + this.parent.getName() + ". Skipping...");
         return;
       }
     }
 
-    FileSystemItem newFile = new FileSystemItem(fileName, fileUrl, fileType);
-    this.childFiles.add(newFile);
+    this.childFiles.add(newChildFile);
   }
 }
