@@ -238,11 +238,50 @@ function deselectFolder() {
 }
 
 function renameFolder() {
-  // Implement rename functionality
+  const isFolder = selectedFileSystemItem.parent != undefined;
+  let fileUrl = isFolder ? selectedFileSystemItem.parent.url : selectedFileSystemItem.url;
+  let fileExtension = isFolder ? "" : selectedFileSystemItem.name.substring(selectedFileSystemItem.name.lastIndexOf("."), selectedFileSystemItem.name.length);
+  let oldName = isFolder ? selectedFileSystemItem.parent.name : selectedFileSystemItem.name.substring(0, selectedFileSystemItem.name.lastIndexOf("."));
+  let newName = prompt("Enter new " + (isFolder ? "folder" : "file") + " name:", oldName);
+
+  if (newName) {
+    fetch("/api/folders/rename", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: new URLSearchParams({
+        fileUrl: fileUrl,
+        newName: newName + (isFolder ? "" : fileExtension)
+      })
+    })
+      .then(data => {
+        if (data) {
+          fetch("/api/folders")
+            .then(response => response.json())
+            .then(data => {
+              rootFolder = data;
+              currentFolder = findFolderByPath(currentFolder.parent.url.split("\\"));
+              openFolder(currentFolder);
+              alert("File renamed successfully");
+            })
+            .catch(error => {
+              console.error("Error fetching folders from api: ", error);
+            });
+        } else {
+          alert("Failed to rename file");
+        }
+      })
+      .catch(error => {
+        console.error("Error renaming file: ", error);
+      });
+  }
 }
 
 function downloadFolder() {
-  // Implement download functionality
+  let isFolder = selectedFileSystemItem.parent != undefined;
+  let fileUrl = isFolder ? selectedFileSystemItem.parent.url : selectedFileSystemItem.url;
+  window.open("/api/folders/download?fileUrl=" + encodeURIComponent(fileUrl), "_blank");
 }
 
 function moveFolder() {

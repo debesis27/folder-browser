@@ -1,12 +1,16 @@
 package com.example.test1.service;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileAttribute;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
@@ -99,6 +103,79 @@ public class DocumentServiceImpl implements DocumentService {
       System.out.println("Error uploading file: ");
       e.printStackTrace();
       return false;
+    }
+  }
+
+  public Boolean renameFileSystemItem(String fileUrl, String newName, FileSystemItemDTO rootFolder) {
+    fileUrl = URLDecoder.decode(fileUrl, StandardCharsets.UTF_8);
+
+    if(fileUrl == null || fileUrl.isEmpty() || newName == null || newName.isEmpty()){
+      return false;
+    }
+
+    try {
+      Path filePath = Paths.get(fileUrl);
+      if(!Files.exists(filePath)){
+        return false;
+      }
+
+      Path newFilePath = Paths.get(fileUrl.substring(0, fileUrl.lastIndexOf("\\")) + "\\" + newName);
+      Files.move(filePath, newFilePath);
+      return true;
+
+    } catch (Exception e) {
+      System.out.println("Error renaming file: " + fileUrl);
+      e.printStackTrace();
+      return false;
+    }
+  }
+
+  public File downloadFileSystemItem(String fileUrl, FileSystemItemDTO rootFolder) {
+    fileUrl = URLDecoder.decode(fileUrl, StandardCharsets.UTF_8);
+    File file = new File(fileUrl);
+    String zipFileName = file.getName() + ".zip";
+    File zipFile = new File(file.getParent(), zipFileName);
+
+    try(
+      FileOutputStream fos = new FileOutputStream(zipFile);
+      ZipOutputStream zos = new ZipOutputStream(fos);
+    ) {
+      downloadFileSystemItemHelper(file, file.getName(), zos);
+
+    } catch (Exception e) {
+      System.out.println("Error zipping file: " + fileUrl);
+      e.printStackTrace();
+      return null;
+    }
+
+    return zipFile;
+  }
+
+  private void downloadFileSystemItemHelper(File folder, String name, ZipOutputStream zos){
+    if(folder.isDirectory()){
+      File[] subFiles = folder.listFiles();
+      if(subFiles == null || subFiles.length == 0){
+        try {
+          zos.putNextEntry(new ZipEntry(name + "/"));
+          zos.closeEntry();
+        } catch (IOException e) {
+          System.out.println("Error zipping folder: " + name);
+          e.printStackTrace();
+        }
+      }else{
+        for(File file : subFiles){
+          downloadFileSystemItemHelper(file, name + "\\" + file.getName(), zos);
+        }
+      }
+    }else{
+      try {
+        zos.putNextEntry(new ZipEntry(name));
+        Files.copy(folder.toPath(), zos);
+        zos.closeEntry();
+      } catch (Exception e) {
+        System.out.println("Error zipping file: " + name);
+        e.printStackTrace();
+      }
     }
   }
 

@@ -1,12 +1,19 @@
 package com.example.test1.controller;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.example.test1.entity.FolderAndFileResponseDTO;
@@ -16,6 +23,7 @@ import com.example.test1.service.FileScanServiceImpl;
 
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 
 @Controller
@@ -77,8 +85,50 @@ public class ApiController {
     }
   }
 
+  @PutMapping("/folders/rename")
+  public ResponseEntity<Boolean> renameFileSystemItem(@RequestParam String newName, @RequestParam String fileUrl){
+    Boolean isRenamed = documentService.renameFileSystemItem(fileUrl, newName, rootFolder);
+
+    if(isRenamed){
+      setRootFolder(fileScanService.scanConfiguredFolder());
+      return new ResponseEntity<>(true, HttpStatus.OK);
+    }else{
+      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @GetMapping("/folders/download")
+  public ResponseEntity<StreamingResponseBody> downloadFileSystemItem(@RequestParam String fileUrl) {
+    File zipFile = documentService.downloadFileSystemItem(fileUrl, rootFolder);
+
+    if(zipFile == null){
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + zipFile.getName());
+    headers.add(HttpHeaders.CONTENT_TYPE, "application/zip");
+
+    StreamingResponseBody stream = outputStream -> {
+      try(FileInputStream inputStream = new FileInputStream(zipFile)) {
+        byte[] buffer = new byte[4096];
+        int bytesRead;
+        while ((bytesRead = inputStream.read(buffer)) != -1) {
+          outputStream.write(buffer, 0, bytesRead);
+        }
+      } finally {
+        zipFile.delete();
+      }
+    };
+
+    return ResponseEntity.ok()
+      .headers(headers)
+      .contentLength(zipFile.length())
+      .body(stream);
+  }
+
   @DeleteMapping("/folders/delete")
-  public ResponseEntity<String> deleteFile(@RequestParam String fileUrl) {
+  public ResponseEntity<String> deleteFileSystemItem(@RequestParam String fileUrl) {
     Boolean isDeleted = documentService.deleteFileSystemItem(fileUrl, rootFolder);
 
     if(isDeleted){
