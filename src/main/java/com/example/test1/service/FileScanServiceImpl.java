@@ -61,7 +61,7 @@ public class FileScanServiceImpl implements FileScanService{
           } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("Failed to encode file path", e);
           }
-          String fileURL = "/file?path=" + encodedFilePath;
+          String fileURL = encodedFilePath;
           FileSystemItem childFile = new FileSystemItem(
             file.getName(), fileURL, fileExtension
           );

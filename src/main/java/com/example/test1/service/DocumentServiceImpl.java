@@ -1,10 +1,19 @@
 package com.example.test1.service;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.FileAttribute;
 import java.util.ArrayList;
 import java.util.List;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.example.test1.entity.FileSystemItem;
 import com.example.test1.entity.FolderAndFileResponseDTO;
 import com.example.test1.entity.FileSystemItemDTO;
@@ -49,5 +58,80 @@ public class DocumentServiceImpl implements DocumentService {
         resultFileList.add(new FileSystemItem(file.getName(), path + "\\" + file.getName(), file.getType()));
       }
     }
+  }
+
+  public Boolean createFolder(String folderName, String parentFolderPath, FileSystemItemDTO rootFolder) {
+    if(folderName == null || folderName.isEmpty() || parentFolderPath == null || parentFolderPath.isEmpty()){
+      return false;
+    }
+
+    try {
+      Path parentPath = Paths.get(parentFolderPath);
+      if(!Files.exists(parentPath) || !Files.isDirectory(parentPath)){
+        return false;
+      }
+
+      Path newFolderPath = parentPath.resolve(folderName);
+      Files.createDirectory(newFolderPath, new FileAttribute<?>[0]);
+      return true;
+    } catch (Exception e) {
+      e.printStackTrace();
+      return false;
+    }
+  }
+
+  public Boolean uploadFile(MultipartFile file, String parentFolderpath, FileSystemItemDTO rootFolder) {
+    if(file == null || parentFolderpath == null || parentFolderpath.isEmpty()){
+      return false;
+    }
+
+    try {
+      Path parentPath = Paths.get(parentFolderpath);
+      if(!Files.exists(parentPath) || !Files.isDirectory(parentPath)){
+        return false;
+      }
+
+      File newFile = new File(parentFolderpath + "\\" + file.getOriginalFilename());
+      file.transferTo(newFile);
+      return true;
+
+    } catch (Exception e) {
+      System.out.println("Error uploading file: ");
+      e.printStackTrace();
+      return false;
+    }
+  }
+
+  public Boolean deleteFileSystemItem(String fileUrl, FileSystemItemDTO rootFolder) {
+    fileUrl = URLDecoder.decode(fileUrl, StandardCharsets.UTF_8);
+
+    if(fileUrl == null || fileUrl.isEmpty()){
+      return false;
+    }
+
+    try {
+      Path filePath = Paths.get(fileUrl);
+      if(!Files.exists(filePath)){
+        return false;
+      }
+
+      return deleteFileSystemItemHelper(new File(fileUrl));
+
+    } catch (Exception e) {
+      System.out.println("Error deleting file: " + fileUrl);
+      e.printStackTrace();
+      return false;
+    }
+  }
+
+  private Boolean deleteFileSystemItemHelper(File fileSystemItem){
+    if(fileSystemItem.isDirectory()){
+      File[] subFiles = fileSystemItem.listFiles();
+      for(File subFile : subFiles){
+        deleteFileSystemItemHelper(subFile);
+      }
+    }
+
+    return fileSystemItem.delete();
   }
 }
