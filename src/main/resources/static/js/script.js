@@ -133,8 +133,6 @@ function renderFolderBrowser(folder) {
     let folderName = $("<h3></h3>").text(childFolder.parent.name);
     let folderImage = $("<img>").attr("src", "/images/file-extensions/folder.svg");
 
-    console.log(childFolder.parent.name + ":" + formatBytes(childFolder.parent.size));
-
     folderDiv.append(folderImage);
     folderDiv.append(folderName);
     folderDiv.click(function (event) {
@@ -152,8 +150,6 @@ function renderFolderBrowser(folder) {
     let fileDiv = $("<div></div>").addClass("folder");
     let fileName = $("<h3></h3>").text(file.name);
     let fileImage = getFileImageElement(file.type);
-
-    console.log(file.name + ":" + formatBytes(file.size));
 
     fileDiv.append(fileImage);
     fileDiv.append(fileName);
@@ -253,6 +249,27 @@ function deselectFolder() {
   $(".file-specific-tools").addClass("hide");
   selectedFileSystemItem = null;
   selectedFileSystemItemElement = null;
+}
+
+function showFolderInfo() {
+  const isFolder = selectedFileSystemItem.parent != undefined;
+  const folderOrFileText = isFolder ? "Folder" : "File";
+  const name = isFolder ? selectedFileSystemItem.parent.name : selectedFileSystemItem.name;
+  const url = isFolder ? selectedFileSystemItem.parent.url : decodeURIComponent(selectedFileSystemItem.url);
+  const type = isFolder ? "Folder" : selectedFileSystemItem.type;
+  const size = isFolder ? formatBytes(selectedFileSystemItem.parent.size) : formatBytes(selectedFileSystemItem.size);
+
+  $("#folderInfo").empty();
+
+  let folderName = $("<h3></h3>").text(folderOrFileText + " name: " + name);
+  let folederUrl = $("<p></p>").text(folderOrFileText + " url: " + url);
+  let folderType = $("<p></p>").text(folderOrFileText + " type: " + type);
+  let folderSize = $("<p></p>").text(folderOrFileText + " size: " + size);
+
+  $("#folderInfo").append(folderName, folederUrl, folderType, folderSize);
+
+  $("#folderInfoModal").children().children("h2").text(folderOrFileText + " Info");
+  $("#folderInfoModal").removeClass("hide");
 }
 
 function renameFolder() {
