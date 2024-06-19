@@ -64,6 +64,16 @@
           <div id="breadcrumbs"></div>
         </div>
 
+        <!-- Mini File Explorer Modal -->
+        <div id="folderExplorerModal" class="modal hide">
+          <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Select destination folder</h2>
+            <div id="miniFolderExplorer"></div>
+            <button id="selectDestinationFolderButton" class="select-button" th:onclick="'handleSelectDestinationFolderButtonClick()'">Select</button>
+          </div>
+        </div>
+
         <!-- Folder Structure -->
         <div class="stage">
            <div id="folder-container"></div>

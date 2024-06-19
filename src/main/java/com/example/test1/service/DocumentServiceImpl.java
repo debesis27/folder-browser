@@ -3,6 +3,7 @@ package com.example.test1.service;
 import java.io.File;
 import java.io.IOException;
 import java.io.FileOutputStream;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -198,6 +199,11 @@ public class DocumentServiceImpl implements DocumentService {
       Files.move(filePath, newFilePath);
       return true;
 
+    } catch(FileAlreadyExistsException e) {
+      File file = new File(fileUrl);
+      file.delete();
+      return true;
+
     } catch (Exception e) {
       System.out.println("Error moving file: " + fileUrl);
       e.printStackTrace();
@@ -224,6 +230,9 @@ public class DocumentServiceImpl implements DocumentService {
       Files.copy(filePath, newFilePath);
       return true;
 
+    } catch(FileAlreadyExistsException e) {
+      return true;
+      
     } catch (Exception e) {
       System.out.println("Error copying file: " + fileUrl);
       e.printStackTrace();

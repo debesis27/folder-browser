@@ -50,6 +50,8 @@ let rootFolder;
 let currentFolder;
 let selectedFileSystemItem = null;
 let selectedFileSystemItemElement = null;
+let selectedDestinationFolder = null;
+let isCopyOperation = false;
 
 document.addEventListener("DOMContentLoaded", function () {
   fetch("/api/folders")
@@ -284,12 +286,131 @@ function downloadFolder() {
   window.open("/api/folders/download?fileUrl=" + encodeURIComponent(fileUrl), "_blank");
 }
 
+$(".close").on("click", function() {
+  $(".modal").addClass("hide");
+  selectedDestinationFolder = null;
+})
+
+function handleSelectDestinationFolderButtonClick() {
+  if(selectedDestinationFolder == null) return;
+
+  const sourceUrl = selectedFileSystemItem.parent != undefined ? selectedFileSystemItem.parent.url : selectedFileSystemItem.url;
+  const destinationUrl = selectedDestinationFolder.parent.url;
+
+  isCopyOperation ? copyFolderHelper(sourceUrl, destinationUrl) : moveFolderHelper(sourceUrl, destinationUrl);
+
+  $(".modal").addClass("hide");
+  selectedDestinationFolder = null;
+}
+
+function openFileExplorerModel() {
+  renderFolderExplorer(rootFolder);
+  selectedDestinationFolder = rootFolder;
+  $(".modal").removeClass("hide");
+}
+
+function renderFolderExplorer(currentFolder) {
+  $("#miniFolderExplorer").empty();
+
+  let goBackDiv = $("<div></div>").addClass("mini-folder");
+  let goBackName = $("<h3></h3>").text("..");
+  goBackDiv.append(goBackName);
+  goBackDiv.click(function (event) {
+    event.stopPropagation(); // Prevent the click from bubbling up
+    selectedDestinationFolder = selectedDestinationFolder.parent.url == "D:\\" ? selectedDestinationFolder : findFolderByPath(selectedDestinationFolder.parent.url.split("\\").slice(0, -1));
+    renderFolderExplorer(selectedDestinationFolder);
+  })
+  $("#miniFolderExplorer").append(goBackDiv);
+
+  currentFolder.childFolders.forEach(childFolder => {
+    let folderDiv = $("<div></div>").addClass("mini-folder");
+    let folderName = $("<h3></h3>").text(childFolder.parent.name);
+
+    folderDiv.append(folderName);
+    folderDiv.click(function (event) {
+      event.stopPropagation(); // Prevent the click from bubbling up
+      selectedDestinationFolder = childFolder;
+      renderFolderExplorer(childFolder);
+    });
+
+    $("#miniFolderExplorer").append(folderDiv);
+  })
+}
+
 function moveFolder() {
-  
+  isCopyOperation = false;
+  openFileExplorerModel();
+}
+
+function moveFolderHelper(sourceUrl, destinationUrl) {
+  fetch("/api/folders/move", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: new URLSearchParams({
+      sourceUrl: sourceUrl,
+      destinationUrl: destinationUrl
+    })
+  })
+    .then(data => {
+      if (data) {
+        fetch("/api/folders")
+          .then(response => response.json())
+          .then(data => {
+            rootFolder = data;
+            currentFolder = findFolderByPath(currentFolder.parent.url.split("\\"));
+            openFolder(currentFolder);
+            alert("File moved successfully");
+          })
+          .catch(error => {
+            console.error("Error fetching folders from api: ", error);
+          });
+      } else {
+        alert("Failed to move file");
+      }
+    })
+    .catch(error => {
+      console.error("Error moving file: ", error);
+    });
 }
 
 function copyFolder() {
-  // Implement copy functionality
+  isCopyOperation = true;
+  openFileExplorerModel();
+}
+
+function copyFolderHelper(sourceUrl, destinationUrl) {
+  fetch("/api/folders/copy", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: new URLSearchParams({
+      sourceUrl: sourceUrl,
+      destinationUrl: destinationUrl
+    })
+  })
+    .then(data => {
+      if (data) {
+        fetch("/api/folders")
+          .then(response => response.json())
+          .then(data => {
+            rootFolder = data;
+            currentFolder = findFolderByPath(currentFolder.parent.url.split("\\"));
+            openFolder(currentFolder);
+            alert("File copied successfully");
+          })
+          .catch(error => {
+            console.error("Error fetching folders from api: ", error);
+          });
+      } else {
+        alert("Failed to copy file");
+      }
+    })
+    .catch(error => {
+      console.error("Error copying file: ", error);
+    });
 }
 
 function deleteFolder() {
