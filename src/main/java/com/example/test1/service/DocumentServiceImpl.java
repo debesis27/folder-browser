@@ -179,6 +179,58 @@ public class DocumentServiceImpl implements DocumentService {
     }
   }
 
+  public Boolean moveFileSystemItem(String fileUrl, String destinationUrl, FileSystemItemDTO rootFolder){
+    fileUrl = URLDecoder.decode(fileUrl, StandardCharsets.UTF_8);
+    destinationUrl = URLDecoder.decode(destinationUrl, StandardCharsets.UTF_8);
+
+    if(fileUrl == null || fileUrl.isEmpty() || destinationUrl == null || destinationUrl.isEmpty()){
+      return false;
+    }
+
+    try {
+      Path filePath = Paths.get(fileUrl);
+      Path destinationPath = Paths.get(destinationUrl);
+      if(!Files.exists(filePath) || !Files.exists(destinationPath)){
+        return false;
+      }
+
+      Path newFilePath = Paths.get(destinationUrl + "\\" + filePath.getFileName());
+      Files.move(filePath, newFilePath);
+      return true;
+
+    } catch (Exception e) {
+      System.out.println("Error moving file: " + fileUrl);
+      e.printStackTrace();
+      return false;
+    }
+  }
+
+  public Boolean copyFileSystemItem(String fileUrl, String destinationUrl, FileSystemItemDTO rootFolder) {
+    fileUrl = URLDecoder.decode(fileUrl, StandardCharsets.UTF_8);
+    destinationUrl = URLDecoder.decode(destinationUrl, StandardCharsets.UTF_8);
+
+    if(fileUrl == null || fileUrl.isEmpty() || destinationUrl == null || destinationUrl.isEmpty()){
+      return false;
+    }
+
+    try {
+      Path filePath = Paths.get(fileUrl);
+      Path destinationPath = Paths.get(destinationUrl);
+      if(!Files.exists(filePath) || !Files.exists(destinationPath)){
+        return false;
+      }
+
+      Path newFilePath = Paths.get(destinationUrl + "\\" + filePath.getFileName());
+      Files.copy(filePath, newFilePath);
+      return true;
+
+    } catch (Exception e) {
+      System.out.println("Error copying file: " + fileUrl);
+      e.printStackTrace();
+      return false;
+    }
+  }
+
   public Boolean deleteFileSystemItem(String fileUrl, FileSystemItemDTO rootFolder) {
     fileUrl = URLDecoder.decode(fileUrl, StandardCharsets.UTF_8);
 

@@ -2,10 +2,7 @@ package com.example.test1.controller;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -125,6 +122,30 @@ public class ApiController {
       .headers(headers)
       .contentLength(zipFile.length())
       .body(stream);
+  }
+
+  @PutMapping("/folders/move")
+  public ResponseEntity<Boolean> moveFileSystemItem(@RequestParam String fileUrl, @RequestParam String destinationUrl) {
+    Boolean isMoved = documentService.moveFileSystemItem(fileUrl, destinationUrl, rootFolder);
+
+    if(isMoved){
+      setRootFolder(fileScanService.scanConfiguredFolder());
+      return new ResponseEntity<>(true, HttpStatus.OK);
+    }else{
+      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @PutMapping("/folders/copy")
+  public ResponseEntity<Boolean> copyFileSystemItem(@RequestParam String fileUrl, @RequestParam String destinationUrl) {
+    Boolean isCopied = documentService.copyFileSystemItem(fileUrl, destinationUrl, rootFolder);
+
+    if(isCopied){
+      setRootFolder(fileScanService.scanConfiguredFolder());
+      return new ResponseEntity<>(true, HttpStatus.OK);
+    }else{
+      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+    }
   }
 
   @DeleteMapping("/folders/delete")

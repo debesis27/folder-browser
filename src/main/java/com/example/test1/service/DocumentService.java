@@ -14,5 +14,7 @@ public interface DocumentService {
   public Boolean uploadFile(MultipartFile file, String parentFolderPath, FileSystemItemDTO rootFolder);
   public Boolean renameFileSystemItem(String fileUrl, String newName, FileSystemItemDTO rootFolder);
   public File downloadFileSystemItem(String fileUrl, FileSystemItemDTO rootFolder);
+  public Boolean moveFileSystemItem(String fileUrl, String destinationUrl, FileSystemItemDTO rootFolder);
+  public Boolean copyFileSystemItem(String fileUrl, String destinationUrl, FileSystemItemDTO rootFolder);
   public Boolean deleteFileSystemItem(String fileUrl, FileSystemItemDTO rootFolder);
 }

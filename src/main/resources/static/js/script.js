@@ -285,7 +285,7 @@ function downloadFolder() {
 }
 
 function moveFolder() {
-  // Implement move functionality
+  
 }
 
 function copyFolder() {
