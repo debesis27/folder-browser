@@ -270,7 +270,7 @@ button:focus {
   /* padding-top: 60px; */
 }
 
-#folderExplorerModal.hide {
+.modal.hide {
   display: none;
 }
 
@@ -301,6 +301,24 @@ button:focus {
   color: black;
   text-decoration: none;
   cursor: pointer;
+}
+
+/* Header */
+.modal-content h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Folder Info */
+#folderInfo h3 {
+  font-size: 20px;
+  margin-top: 0;
+}
+
+#folderInfo p {
+  font-size: 16px;
+  margin: 5px 0;
 }
 
 /* Folder Explorer Specific Styles */
