@@ -125,8 +125,8 @@ public class ApiController {
   }
 
   @PutMapping("/folders/move")
-  public ResponseEntity<Boolean> moveFileSystemItem(@RequestParam String fileUrl, @RequestParam String destinationUrl) {
-    Boolean isMoved = documentService.moveFileSystemItem(fileUrl, destinationUrl, rootFolder);
+  public ResponseEntity<Boolean> moveFileSystemItem(@RequestParam String sourceUrl, @RequestParam String destinationUrl) {
+    Boolean isMoved = documentService.moveFileSystemItem(sourceUrl, destinationUrl, rootFolder);
 
     if(isMoved){
       setRootFolder(fileScanService.scanConfiguredFolder());
@@ -137,8 +137,8 @@ public class ApiController {
   }
 
   @PutMapping("/folders/copy")
-  public ResponseEntity<Boolean> copyFileSystemItem(@RequestParam String fileUrl, @RequestParam String destinationUrl) {
-    Boolean isCopied = documentService.copyFileSystemItem(fileUrl, destinationUrl, rootFolder);
+  public ResponseEntity<Boolean> copyFileSystemItem(@RequestParam String sourceUrl, @RequestParam String destinationUrl) {
+    Boolean isCopied = documentService.copyFileSystemItem(sourceUrl, destinationUrl, rootFolder);
 
     if(isCopied){
       setRootFolder(fileScanService.scanConfiguredFolder());
