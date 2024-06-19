@@ -383,6 +383,9 @@ button:focus {
   border-radius: 3px;
   margin-bottom: 23px;
   text-align: center;
+  max-width: 300px;
+  word-wrap: break-word;
+  white-space: normal;
   border: 1px solid #eeeeee;
   transition: 0.2s all cubic-bezier(0.4, 0.0, 0.2, 1);
   position: relative;
@@ -412,11 +415,19 @@ button:focus {
   #folder-container {
     grid-template-columns: repeat(4, 1fr); /* 4 columns */
   }
+
+  .folder {
+    max-width: 300px;
+  }
 }
 
 @media (max-width: 992px) {
   #folder-container {
     grid-template-columns: repeat(3, 1fr); /* 3 columns */
+  }
+
+  .folder {
+    max-width: 250px;
   }
 }
 
@@ -424,10 +435,18 @@ button:focus {
   #folder-container {
     grid-template-columns: repeat(2, 1fr); /* 2 columns */
   }
+
+  .folder {
+    max-width: 250px;
+  }
 }
 
 @media (max-width: 576px) {
   #folder-container {
     grid-template-columns: 1fr; /* 1 column */
+  }
+
+  .folder {
+    max-width: 100%;
   }
 }
