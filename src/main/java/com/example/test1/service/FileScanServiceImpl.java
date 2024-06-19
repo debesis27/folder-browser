@@ -37,6 +37,7 @@ public class FileScanServiceImpl implements FileScanService{
   }
 
   private FileSystemItemDTO scanFolderHelper(File directory){
+    long directorySize = 0;
     String name = directory.getName();
     if(name.isEmpty()) {
       name = directory.getPath();
@@ -44,7 +45,7 @@ public class FileScanServiceImpl implements FileScanService{
     }
 
     FileSystemItemDTO rootFolderDto = new FileSystemItemDTO(new FileSystemItem(
-      name, directory.getAbsolutePath(), "folder"
+      name, directory.getAbsolutePath(), "folder", directory.length()
     ));
 
     File[] files = directory.listFiles();
@@ -53,6 +54,7 @@ public class FileScanServiceImpl implements FileScanService{
         if(file.isDirectory()){
           FileSystemItemDTO childFolderDto = scanFolderHelper(file);
           rootFolderDto.addChildFolder(childFolderDto);
+          directorySize += childFolderDto.getParent().getSize();
         }else{
           String fileExtension = StringUtils.getFilenameExtension(file.getName());
           String encodedFilePath = "";
@@ -63,13 +65,15 @@ public class FileScanServiceImpl implements FileScanService{
           }
           String fileURL = encodedFilePath;
           FileSystemItem childFile = new FileSystemItem(
-            file.getName(), fileURL, fileExtension
+            file.getName(), fileURL, fileExtension, file.length()
           );
           rootFolderDto.addChildFile(childFile);
+          directorySize += file.length();
         }
       }
     }
     
+    rootFolderDto.getParent().setSize(directorySize + rootFolderDto.getParent().getSize());
     return rootFolderDto;
   }
 }

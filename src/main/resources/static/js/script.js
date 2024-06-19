@@ -133,6 +133,8 @@ function renderFolderBrowser(folder) {
     let folderName = $("<h3></h3>").text(childFolder.parent.name);
     let folderImage = $("<img>").attr("src", "/images/file-extensions/folder.svg");
 
+    console.log(childFolder.parent.name + ":" + formatBytes(childFolder.parent.size));
+
     folderDiv.append(folderImage);
     folderDiv.append(folderName);
     folderDiv.click(function (event) {
@@ -151,6 +153,8 @@ function renderFolderBrowser(folder) {
     let fileName = $("<h3></h3>").text(file.name);
     let fileImage = getFileImageElement(file.type);
 
+    console.log(file.name + ":" + formatBytes(file.size));
+
     fileDiv.append(fileImage);
     fileDiv.append(fileName);
     fileDiv.click(function (event) {
@@ -163,6 +167,18 @@ function renderFolderBrowser(folder) {
 
     folderBrowser.append(fileDiv);
   })
+}
+
+function formatBytes(bytes, decimals = 2) {
+  if (bytes === 0) return '0 Bytes';
+
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
 
 function showBreadcrumbs(folderUrl) {

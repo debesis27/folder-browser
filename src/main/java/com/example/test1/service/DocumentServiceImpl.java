@@ -3,10 +3,12 @@ package com.example.test1.service;
 import java.io.File;
 import java.io.IOException;
 import java.io.FileOutputStream;
+import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.FileAttribute;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +35,7 @@ public class DocumentServiceImpl implements DocumentService {
     List<FileSystemItem> resultFolderList = new ArrayList<>();
     List<FileSystemItem> resultFileList = new ArrayList<>();
 
-    if(folderNameString == null || folderNameString.isEmpty()){
+    if (folderNameString == null || folderNameString.isEmpty()) {
       return null;
     }
 
@@ -42,37 +44,40 @@ public class DocumentServiceImpl implements DocumentService {
     return new FolderAndFileResponseDTO(resultFolderList, resultFileList);
   }
 
-  private void searchFolderPathByNameHelper(String folderNameString, FileSystemItemDTO currentFolder, String path, List<FileSystemItem> resultFolderList, List<FileSystemItem> resultFileList) {
-    if(path.isEmpty()){
+  private void searchFolderPathByNameHelper(String folderNameString, FileSystemItemDTO currentFolder, String path,
+      List<FileSystemItem> resultFolderList, List<FileSystemItem> resultFileList) {
+    if (path.isEmpty()) {
       path = currentFolder.getParent().getName();
-    }else{
+    } else {
       path += "\\" + currentFolder.getParent().getName();
     }
 
-    if(currentFolder.getParent().getName().toLowerCase().contains(folderNameString)){
-      resultFolderList.add(new FileSystemItem(currentFolder.getParent().getName(), path, "folder"));
+    if (currentFolder.getParent().getName().toLowerCase().contains(folderNameString)) {
+      resultFolderList.add(
+          new FileSystemItem(currentFolder.getParent().getName(), path, "folder", currentFolder.getParent().getSize()));
     }
 
     List<FileSystemItemDTO> subFolders = currentFolder.getChildFolders();
-    for(FileSystemItemDTO subFolder : subFolders){
+    for (FileSystemItemDTO subFolder : subFolders) {
       searchFolderPathByNameHelper(folderNameString, subFolder, path, resultFolderList, resultFileList);
     }
 
-    for(FileSystemItem file : currentFolder.getChildFiles()){
-      if(file.getName().toLowerCase().contains(folderNameString)){
-        resultFileList.add(new FileSystemItem(file.getName(), path + "\\" + file.getName(), file.getType()));
+    for (FileSystemItem file : currentFolder.getChildFiles()) {
+      if (file.getName().toLowerCase().contains(folderNameString)) {
+        resultFileList
+            .add(new FileSystemItem(file.getName(), path + "\\" + file.getName(), file.getType(), file.getSize()));
       }
     }
   }
 
   public Boolean createFolder(String folderName, String parentFolderPath, FileSystemItemDTO rootFolder) {
-    if(folderName == null || folderName.isEmpty() || parentFolderPath == null || parentFolderPath.isEmpty()){
+    if (folderName == null || folderName.isEmpty() || parentFolderPath == null || parentFolderPath.isEmpty()) {
       return false;
     }
 
     try {
       Path parentPath = Paths.get(parentFolderPath);
-      if(!Files.exists(parentPath) || !Files.isDirectory(parentPath)){
+      if (!Files.exists(parentPath) || !Files.isDirectory(parentPath)) {
         return false;
       }
 
@@ -86,13 +91,13 @@ public class DocumentServiceImpl implements DocumentService {
   }
 
   public Boolean uploadFile(MultipartFile file, String parentFolderpath, FileSystemItemDTO rootFolder) {
-    if(file == null || parentFolderpath == null || parentFolderpath.isEmpty()){
+    if (file == null || parentFolderpath == null || parentFolderpath.isEmpty()) {
       return false;
     }
 
     try {
       Path parentPath = Paths.get(parentFolderpath);
-      if(!Files.exists(parentPath) || !Files.isDirectory(parentPath)){
+      if (!Files.exists(parentPath) || !Files.isDirectory(parentPath)) {
         return false;
       }
 
@@ -110,13 +115,13 @@ public class DocumentServiceImpl implements DocumentService {
   public Boolean renameFileSystemItem(String fileUrl, String newName, FileSystemItemDTO rootFolder) {
     fileUrl = URLDecoder.decode(fileUrl, StandardCharsets.UTF_8);
 
-    if(fileUrl == null || fileUrl.isEmpty() || newName == null || newName.isEmpty()){
+    if (fileUrl == null || fileUrl.isEmpty() || newName == null || newName.isEmpty()) {
       return false;
     }
 
     try {
       Path filePath = Paths.get(fileUrl);
-      if(!Files.exists(filePath)){
+      if (!Files.exists(filePath)) {
         return false;
       }
 
@@ -137,10 +142,9 @@ public class DocumentServiceImpl implements DocumentService {
     String zipFileName = file.getName() + ".zip";
     File zipFile = new File(file.getParent(), zipFileName);
 
-    try(
-      FileOutputStream fos = new FileOutputStream(zipFile);
-      ZipOutputStream zos = new ZipOutputStream(fos);
-    ) {
+    try (
+        FileOutputStream fos = new FileOutputStream(zipFile);
+        ZipOutputStream zos = new ZipOutputStream(fos);) {
       downloadFileSystemItemHelper(file, file.getName(), zos);
 
     } catch (Exception e) {
@@ -152,10 +156,10 @@ public class DocumentServiceImpl implements DocumentService {
     return zipFile;
   }
 
-  private void downloadFileSystemItemHelper(File folder, String name, ZipOutputStream zos){
-    if(folder.isDirectory()){
+  private void downloadFileSystemItemHelper(File folder, String name, ZipOutputStream zos) {
+    if (folder.isDirectory()) {
       File[] subFiles = folder.listFiles();
-      if(subFiles == null || subFiles.length == 0){
+      if (subFiles == null || subFiles.length == 0) {
         try {
           zos.putNextEntry(new ZipEntry(name + "/"));
           zos.closeEntry();
@@ -163,12 +167,12 @@ public class DocumentServiceImpl implements DocumentService {
           System.out.println("Error zipping folder: " + name);
           e.printStackTrace();
         }
-      }else{
-        for(File file : subFiles){
+      } else {
+        for (File file : subFiles) {
           downloadFileSystemItemHelper(file, name + "\\" + file.getName(), zos);
         }
       }
-    }else{
+    } else {
       try {
         zos.putNextEntry(new ZipEntry(name));
         Files.copy(folder.toPath(), zos);
@@ -180,28 +184,28 @@ public class DocumentServiceImpl implements DocumentService {
     }
   }
 
-  public Boolean moveFileSystemItem(String fileUrl, String destinationUrl, FileSystemItemDTO rootFolder){
+  public Boolean moveFileSystemItem(String fileUrl, String destinationUrl, FileSystemItemDTO rootFolder) {
     fileUrl = URLDecoder.decode(fileUrl, StandardCharsets.UTF_8);
     destinationUrl = URLDecoder.decode(destinationUrl, StandardCharsets.UTF_8);
 
-    if(fileUrl == null || fileUrl.isEmpty() || destinationUrl == null || destinationUrl.isEmpty()){
+    if (fileUrl == null || fileUrl.isEmpty() || destinationUrl == null || destinationUrl.isEmpty()) {
       return false;
     }
 
     try {
       Path filePath = Paths.get(fileUrl);
       Path destinationPath = Paths.get(destinationUrl);
-      if(!Files.exists(filePath) || !Files.exists(destinationPath)){
+      if (!Files.exists(filePath) || !Files.exists(destinationPath)) {
         return false;
       }
 
       Path newFilePath = Paths.get(destinationUrl + "\\" + filePath.getFileName());
-      Files.move(filePath, newFilePath);
+      Files.move(filePath, newFilePath, StandardCopyOption.REPLACE_EXISTING);
       return true;
 
-    } catch(FileAlreadyExistsException e) {
-      File file = new File(fileUrl);
-      file.delete();
+    } catch (DirectoryNotEmptyException e) {
+      deleteFileSystemItem(fileUrl, rootFolder);
+      moveFileSystemItem(fileUrl, destinationUrl, rootFolder);
       return true;
 
     } catch (Exception e) {
@@ -215,24 +219,25 @@ public class DocumentServiceImpl implements DocumentService {
     fileUrl = URLDecoder.decode(fileUrl, StandardCharsets.UTF_8);
     destinationUrl = URLDecoder.decode(destinationUrl, StandardCharsets.UTF_8);
 
-    if(fileUrl == null || fileUrl.isEmpty() || destinationUrl == null || destinationUrl.isEmpty()){
+    if (fileUrl == null || fileUrl.isEmpty() || destinationUrl == null || destinationUrl.isEmpty()) {
       return false;
     }
 
     try {
       Path filePath = Paths.get(fileUrl);
       Path destinationPath = Paths.get(destinationUrl);
-      if(!Files.exists(filePath) || !Files.exists(destinationPath)){
+      if (!Files.exists(filePath) || !Files.exists(destinationPath)) {
         return false;
       }
 
       Path newFilePath = Paths.get(destinationUrl + "\\" + filePath.getFileName());
-      Files.copy(filePath, newFilePath);
+      if (Files.isDirectory(filePath)) {
+        copyFileSystemItemHelper(filePath, newFilePath);
+      } else {
+        Files.copy(filePath, newFilePath, StandardCopyOption.REPLACE_EXISTING);
+      }
       return true;
 
-    } catch(FileAlreadyExistsException e) {
-      return true;
-      
     } catch (Exception e) {
       System.out.println("Error copying file: " + fileUrl);
       e.printStackTrace();
@@ -240,16 +245,28 @@ public class DocumentServiceImpl implements DocumentService {
     }
   }
 
+  public static void copyFileSystemItemHelper(Path source, Path target) throws IOException {
+    Files.walk(source)
+        .forEach(sourcePath -> {
+          Path targetPath = target.resolve(source.relativize(sourcePath));
+          try {
+            Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+          } catch (IOException ex) {
+            throw new RuntimeException("Error copying file: " + sourcePath.toString(), ex);
+          }
+        });
+  }
+
   public Boolean deleteFileSystemItem(String fileUrl, FileSystemItemDTO rootFolder) {
     fileUrl = URLDecoder.decode(fileUrl, StandardCharsets.UTF_8);
 
-    if(fileUrl == null || fileUrl.isEmpty()){
+    if (fileUrl == null || fileUrl.isEmpty()) {
       return false;
     }
 
     try {
       Path filePath = Paths.get(fileUrl);
-      if(!Files.exists(filePath)){
+      if (!Files.exists(filePath)) {
         return false;
       }
 
@@ -262,10 +279,10 @@ public class DocumentServiceImpl implements DocumentService {
     }
   }
 
-  private Boolean deleteFileSystemItemHelper(File fileSystemItem){
-    if(fileSystemItem.isDirectory()){
+  private Boolean deleteFileSystemItemHelper(File fileSystemItem) {
+    if (fileSystemItem.isDirectory()) {
       File[] subFiles = fileSystemItem.listFiles();
-      for(File subFile : subFiles){
+      for (File subFile : subFiles) {
         deleteFileSystemItemHelper(subFile);
       }
     }
