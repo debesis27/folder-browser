@@ -3,6 +3,7 @@ package com.example.test1.controller;
 import java.nio.file.Path;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
@@ -22,8 +23,7 @@ public class FileServingController {
   @GetMapping("/file")
   public ResponseEntity<Resource> serveFile(@RequestParam String path) {
     try {
-      String decodedPath = URLDecoder.decode(path, StandardCharsets.UTF_8.toString());
-      Path filePath = Paths.get(decodedPath).toAbsolutePath().normalize();
+      Path filePath = Paths.get(path).toAbsolutePath().normalize();
       Resource resource = new FileSystemResource(filePath);
 
       if(!resource.exists()){

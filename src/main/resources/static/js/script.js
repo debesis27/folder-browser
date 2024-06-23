@@ -158,7 +158,9 @@ function renderFolderBrowser(folder) {
       selectFolder(fileDiv, file);
     });
     fileDiv.dblclick(function () {
-      window.open("/file?path=" + file.url, "_blank");
+      window.open("/file?path=" + encodeURIComponent(file.url), "_blank");
+      console.log("Opening file with url: " + file.url);
+      console.log("File with encoded url: " + encodeURIComponent(file.url));
     })
 
     folderBrowser.append(fileDiv);

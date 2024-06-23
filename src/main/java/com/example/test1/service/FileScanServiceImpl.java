@@ -1,10 +1,6 @@
 package com.example.test1.service;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
-import java.net.URLEncoder;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -39,13 +35,15 @@ public class FileScanServiceImpl implements FileScanService{
   private FileSystemItemDTO scanFolderHelper(File directory){
     long directorySize = 0;
     String name = directory.getName();
+    String path = directory.toPath().toString();
     if(name.isEmpty()) {
       name = directory.getPath();
       name = name.substring(0, name.length() - 1);
+      path = path.substring(0, path.length() - 1);
     }
 
     FileSystemItemDTO rootFolderDto = new FileSystemItemDTO(new FileSystemItem(
-      name, directory.getAbsolutePath(), "folder", directory.length()
+      name, path, "folder", directory.length()
     ));
 
     File[] files = directory.listFiles();
@@ -57,13 +55,7 @@ public class FileScanServiceImpl implements FileScanService{
           directorySize += childFolderDto.getParent().getSize();
         }else{
           String fileExtension = StringUtils.getFilenameExtension(file.getName());
-          String encodedFilePath = "";
-          try {
-            encodedFilePath = URLEncoder.encode(file.getAbsolutePath(), StandardCharsets.UTF_8.toString());
-          } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("Failed to encode file path", e);
-          }
-          String fileURL = encodedFilePath;
+          String fileURL = file.getAbsolutePath();
           FileSystemItem childFile = new FileSystemItem(
             file.getName(), fileURL, fileExtension, file.length()
           );
