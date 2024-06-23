@@ -4,10 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.FileOutputStream;
 import java.nio.file.DirectoryNotEmptyException;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.FileAttribute;
 import java.util.ArrayList;
@@ -44,8 +42,13 @@ public class DocumentServiceImpl implements DocumentService {
     return new FolderAndFileResponseDTO(resultFolderList, resultFileList);
   }
 
-  private void searchFolderPathByNameHelper(String folderNameString, FileSystemItemDTO currentFolder, String path,
-      List<FileSystemItem> resultFolderList, List<FileSystemItem> resultFileList) {
+  private void searchFolderPathByNameHelper(
+    String folderNameString,
+    FileSystemItemDTO currentFolder,
+    String path,
+    List<FileSystemItem> resultFolderList,
+    List<FileSystemItem> resultFileList
+    ) {
     if (path.isEmpty()) {
       path = currentFolder.getParent().getName();
     } else {
@@ -76,7 +79,7 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     try {
-      Path parentPath = Paths.get(parentFolderPath);
+      Path parentPath = Path.of(parentFolderPath);
       if (!Files.exists(parentPath) || !Files.isDirectory(parentPath)) {
         return false;
       }
@@ -85,6 +88,7 @@ public class DocumentServiceImpl implements DocumentService {
       Files.createDirectory(newFolderPath, new FileAttribute<?>[0]);
       return true;
     } catch (Exception e) {
+      System.out.println("Error creating folder: " + folderName);
       e.printStackTrace();
       return false;
     }
@@ -96,7 +100,7 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     try {
-      Path parentPath = Paths.get(parentFolderpath);
+      Path parentPath = Path.of(parentFolderpath);
       if (!Files.exists(parentPath) || !Files.isDirectory(parentPath)) {
         return false;
       }
@@ -120,12 +124,12 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     try {
-      Path filePath = Paths.get(fileUrl);
+      Path filePath = Path.of(fileUrl);
       if (!Files.exists(filePath)) {
         return false;
       }
 
-      Path newFilePath = Paths.get(fileUrl.substring(0, fileUrl.lastIndexOf("\\")) + "\\" + newName);
+      Path newFilePath = Path.of(fileUrl.substring(0, fileUrl.lastIndexOf("\\")) + "\\" + newName);
       Files.move(filePath, newFilePath);
       return true;
 
@@ -193,13 +197,13 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     try {
-      Path filePath = Paths.get(fileUrl);
-      Path destinationPath = Paths.get(destinationUrl);
+      Path filePath = Path.of(fileUrl);
+      Path destinationPath = Path.of(destinationUrl);
       if (!Files.exists(filePath) || !Files.exists(destinationPath)) {
         return false;
       }
 
-      Path newFilePath = Paths.get(destinationUrl + "\\" + filePath.getFileName());
+      Path newFilePath = Path.of(destinationUrl + "\\" + filePath.getFileName());
       Files.move(filePath, newFilePath, StandardCopyOption.REPLACE_EXISTING);
       return true;
 
@@ -224,13 +228,13 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     try {
-      Path filePath = Paths.get(fileUrl);
-      Path destinationPath = Paths.get(destinationUrl);
+      Path filePath = Path.of(fileUrl);
+      Path destinationPath = Path.of(destinationUrl);
       if (!Files.exists(filePath) || !Files.exists(destinationPath)) {
         return false;
       }
 
-      Path newFilePath = Paths.get(destinationUrl + "\\" + filePath.getFileName());
+      Path newFilePath = Path.of(destinationUrl + "\\" + filePath.getFileName());
       if (Files.isDirectory(filePath)) {
         copyFileSystemItemHelper(filePath, newFilePath);
       } else {
@@ -265,7 +269,7 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     try {
-      Path filePath = Paths.get(fileUrl);
+      Path filePath = Path.of(fileUrl);
       if (!Files.exists(filePath)) {
         return false;
       }
