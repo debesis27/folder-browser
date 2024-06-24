@@ -12,9 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -117,8 +114,6 @@ public class DocumentServiceImpl implements DocumentService {
   }
 
   public Boolean renameFileSystemItem(String fileUrl, String newName, FileSystemItemDTO rootFolder) {
-    fileUrl = URLDecoder.decode(fileUrl, StandardCharsets.UTF_8);
-
     if (fileUrl == null || fileUrl.isEmpty() || newName == null || newName.isEmpty()) {
       return false;
     }
@@ -141,7 +136,6 @@ public class DocumentServiceImpl implements DocumentService {
   }
 
   public File downloadFileSystemItem(String fileUrl, FileSystemItemDTO rootFolder) {
-    fileUrl = URLDecoder.decode(fileUrl, StandardCharsets.UTF_8);
     File file = new File(fileUrl);
     String zipFileName = file.getName() + ".zip";
     File zipFile = new File(file.getParent(), zipFileName);
@@ -189,9 +183,6 @@ public class DocumentServiceImpl implements DocumentService {
   }
 
   public Boolean moveFileSystemItem(String fileUrl, String destinationUrl, FileSystemItemDTO rootFolder) {
-    fileUrl = URLDecoder.decode(fileUrl, StandardCharsets.UTF_8);
-    destinationUrl = URLDecoder.decode(destinationUrl, StandardCharsets.UTF_8);
-
     if (fileUrl == null || fileUrl.isEmpty() || destinationUrl == null || destinationUrl.isEmpty()) {
       return false;
     }
@@ -220,9 +211,6 @@ public class DocumentServiceImpl implements DocumentService {
   }
 
   public Boolean copyFileSystemItem(String fileUrl, String destinationUrl, FileSystemItemDTO rootFolder) {
-    fileUrl = URLDecoder.decode(fileUrl, StandardCharsets.UTF_8);
-    destinationUrl = URLDecoder.decode(destinationUrl, StandardCharsets.UTF_8);
-
     if (fileUrl == null || fileUrl.isEmpty() || destinationUrl == null || destinationUrl.isEmpty()) {
       return false;
     }
@@ -262,8 +250,6 @@ public class DocumentServiceImpl implements DocumentService {
   }
 
   public Boolean deleteFileSystemItem(String fileUrl, FileSystemItemDTO rootFolder) {
-    fileUrl = URLDecoder.decode(fileUrl, StandardCharsets.UTF_8);
-
     if (fileUrl == null || fileUrl.isEmpty()) {
       return false;
     }
