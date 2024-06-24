@@ -352,12 +352,14 @@ function renderFolderExplorer(currentFolder) {
   goBackDiv.append(goBackName);
   goBackDiv.click(function (event) {
     event.stopPropagation(); // Prevent the click from bubbling up
-    selectedDestinationFolder = selectedDestinationFolder.parent.url == "D:\\" ? selectedDestinationFolder : findFolderByPath(selectedDestinationFolder.parent.url.split("\\").slice(0, -1));
+    selectedDestinationFolder = selectedDestinationFolder.parent.url == "D:" ? selectedDestinationFolder : findFolderByPath(selectedDestinationFolder.parent.url.split("\\").slice(0, -1));
     renderFolderExplorer(selectedDestinationFolder);
   })
   $("#miniFolderExplorer").append(goBackDiv);
 
   currentFolder.childFolders.forEach(childFolder => {
+    if(selectedFileSystemItem.parent != null && childFolder.parent.url == selectedFileSystemItem.parent.url) return;
+
     let folderDiv = $("<div></div>").addClass("mini-folder");
     let folderName = $("<h3></h3>").text(childFolder.parent.name);
 
@@ -560,7 +562,7 @@ function uploadFile(file) {
 }
 
 function searchFileSystemItems(query) {
-  fetch("/api/folders/search?folderName=" + query)
+  fetch("/api/folders/search?folderName=" + encodeURIComponent(query))
     .then(response => response.json())
     .then(data => {
       displaySearchResults(data);
