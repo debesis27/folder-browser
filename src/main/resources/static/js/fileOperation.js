@@ -200,28 +200,30 @@ function uploadFile(file) {
     })
 }
 
-$("#createFolderButton").click(createFolder);
-$("#uploadFileButton").click(function() {
-  $("#fileUploadInput").click();
-});
-$("#folderInfoButton").click(showFolderInfo);
-$("#renameFolderButton").click(renameFolder);
-$("#downloadFolderButton").click(downloadFolder);
-$("#moveFolderButton").click(function(){
-  stateManager.setState({isCopyOperation: false});
-  openFileExplorerModel();
-});
-$("#copyFolderButton").click(function() {
-  stateManager.setState({isCopyOperation: true});
-  openFileExplorerModel();
-});
-$("#deleteFolderButton").click(deleteFolder);
+export function bindFileOperationEvents() {
+  $("#createFolderButton").click(createFolder);
+  $("#uploadFileButton").click(function() {
+    $("#fileUploadInput").click();
+  });
+  $("#folderInfoButton").click(showFolderInfo);
+  $("#renameFolderButton").click(renameFolder);
+  $("#downloadFolderButton").click(downloadFolder);
+  $("#moveFolderButton").click(function(){
+    stateManager.setState({isCopyOperation: false});
+    openFileExplorerModel();
+  });
+  $("#copyFolderButton").click(function() {
+    stateManager.setState({isCopyOperation: true});
+    openFileExplorerModel();
+  });
+  $("#deleteFolderButton").click(deleteFolder);
 
-$("#fileUploadInput").on("change", function() {
-  if(this.files && this.files.length > 0) {
-    uploadFile(this.files[0]);
-  }
-})
+  $("#fileUploadInput").on("change", function() {
+    if(this.files && this.files.length > 0) {
+      uploadFile(this.files[0]);
+    }
+  })
+}
 
 export {
   showFolderInfo,

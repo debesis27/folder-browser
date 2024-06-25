@@ -60,14 +60,15 @@ function renderFolderExplorer(currentFolder) {
   })
 }
 
-$(".close").on("click", function() {
-  $(".modal").addClass("hide");
-  stateManager.setState({selectedDestinationFolder: null});
-})
-
-$("#selectDestinationFolderButton").click(handleSelectDestinationFolderButtonClick);
+export function bindMiniFileBrowserEvents() {
+  $(".close").on("click", function() {
+    $(".modal").addClass("hide");
+    stateManager.setState({selectedDestinationFolder: null});
+  })
+  
+  $("#selectDestinationFolderButton").click(handleSelectDestinationFolderButtonClick);
+}
 
 export {
-  handleSelectDestinationFolderButtonClick,
   openFileExplorerModel
 }

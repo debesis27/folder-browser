@@ -55,36 +55,38 @@ function getSearchResultItemElement(fileSystemItem, onClickFunction) {
   return resultItem;
 }
 
-// Search bar input change
-$("#searchInput").on("input", debounce(function () {
-  const query = $(this).val().trim();
-  if (query) {
-    searchFileSystemItems(query);
-  } else {
+export function bindSearchEvents() {
+  // Search bar input change
+  $("#searchInput").on("input", debounce(function () {
+    const query = $(this).val().trim();
+    if (query) {
+      searchFileSystemItems(query);
+    } else {
+      $("#search-results-container").empty();
+    }
+  }, 400));
+
+  // Search bar click
+  $("#searchInput").click(function () {
+    $(".toolbar-right").addClass("hide");
+    $(".folder-grid-view-container").addClass("hide");
+    $("#searchResults").removeClass("hide");
+    $("#logoOnSearchBar").addClass("hide");
+    $("#backButtonFromSearchResult").removeClass("hide");
+  });
+
+  // Back button from Search click
+  $("#backButtonFromSearchResult").click(function () {
+    $("#searchInput").val("");
     $("#search-results-container").empty();
-  }
-}, 400));
 
-// Search bar click
-$("#searchInput").click(function () {
-  $(".toolbar-right").addClass("hide");
-  $(".folder-grid-view-container").addClass("hide");
-  $("#searchResults").removeClass("hide");
-  $("#logoOnSearchBar").addClass("hide");
-  $("#backButtonFromSearchResult").removeClass("hide");
-});
-
-// Back button from Search click
-$("#backButtonFromSearchResult").click(function () {
-  $("#searchInput").val("");
-  $("#search-results-container").empty();
-
-  $(".toolbar-right").toggleClass("hide");
-  $(".folder-grid-view-container").toggleClass("hide");
-  $("#searchResults").toggleClass("hide");
-  $("#logoOnSearchBar").toggleClass("hide");
-  $("#backButtonFromSearchResult").toggleClass("hide");
-});
+    $(".toolbar-right").toggleClass("hide");
+    $(".folder-grid-view-container").toggleClass("hide");
+    $("#searchResults").toggleClass("hide");
+    $("#logoOnSearchBar").toggleClass("hide");
+    $("#backButtonFromSearchResult").toggleClass("hide");
+  });
+}
 
 export {
   searchFileSystemItems

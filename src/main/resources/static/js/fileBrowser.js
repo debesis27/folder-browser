@@ -123,14 +123,16 @@ function deselectFolder() {
   stateManager.setState({selectedFileSystemItem: null, selectedFileSystemItemElement: null});
 }
 
-// Deselect when clicking outside
-document.addEventListener("click", function (event) {
-  if (!event.target.closest('.folder') && !event.target.closest('.file-specific-tools')) {
-    deselectFolder();
-  }
-});
+export function bindFileBrowserEvents() {
+  // Deselect when clicking outside of the folder
+  document.addEventListener("click", function (event) {
+    if (!event.target.closest('.folder') && !event.target.closest('.file-specific-tools')) {
+      deselectFolder();
+    }
+  });
 
-$(".pop-breadcrumb").click(popBreadcrumb);
+  $(".pop-breadcrumb").click(popBreadcrumb);
+}
 
 export {
   fetchAndShowFileBrowser,
