@@ -49,19 +49,20 @@ public class FileScanServiceImpl implements FileScanService{
     File[] files = directory.listFiles();
     if(files != null){
       for(File file : files){
-        if(file.isDirectory()){
-          FileSystemItemDTO childFolderDto = scanFolderHelper(file);
-          rootFolderDto.addChildFolder(childFolderDto);
-          directorySize += childFolderDto.getParent().getSize();
-        }else{
-          String fileExtension = StringUtils.getFilenameExtension(file.getName());
-          String fileURL = file.getAbsolutePath();
-          FileSystemItem childFile = new FileSystemItem(
-            file.getName(), fileURL, fileExtension, file.length()
-          );
-          rootFolderDto.addChildFile(childFile);
-          directorySize += file.length();
-        }
+        if(file.isHidden() || file.getName().startsWith(".")) continue;
+          if(file.isDirectory()){
+            FileSystemItemDTO childFolderDto = scanFolderHelper(file);
+            rootFolderDto.addChildFolder(childFolderDto);
+            directorySize += childFolderDto.getParent().getSize();
+          }else{
+            String fileExtension = StringUtils.getFilenameExtension(file.getName());
+            String fileURL = file.getAbsolutePath();
+            FileSystemItem childFile = new FileSystemItem(
+              file.getName(), fileURL, fileExtension, file.length()
+            );
+            rootFolderDto.addChildFile(childFile);
+            directorySize += file.length();
+          }
       }
     }
     

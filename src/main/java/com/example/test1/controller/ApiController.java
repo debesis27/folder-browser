@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.example.test1.entity.FolderAndFileResponseDTO;
 import com.example.test1.entity.FileSystemItemDTO;
-import com.example.test1.service.DocumentServiceImpl;
+import com.example.test1.service.FileOperationServiceImpl;
 import com.example.test1.service.FileScanServiceImpl;
 
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,7 +28,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 public class ApiController {
   private FileSystemItemDTO rootFolder = null;
   @Autowired
-  private DocumentServiceImpl documentService;
+  private FileOperationServiceImpl fileOperationService;
   @Autowired
   private FileScanServiceImpl fileScanService;
 
@@ -49,8 +49,8 @@ public class ApiController {
     if(rootFolder == null){
       rootFolder = fileScanService.scanConfiguredFolder();
     }
-    
-    FolderAndFileResponseDTO path = documentService.searchAllFolderPathByName(folderName, rootFolder);
+
+    FolderAndFileResponseDTO path = fileOperationService.searchAllFolderPathByName(folderName, rootFolder);
     
     return new ResponseEntity<>(path, HttpStatus.OK);
   }
@@ -61,7 +61,7 @@ public class ApiController {
       rootFolder = fileScanService.scanConfiguredFolder();
     }
     
-    Boolean isCreated = documentService.createFolder(folderName, parentFolderPath, rootFolder);
+    Boolean isCreated = fileOperationService.createFolder(folderName, parentFolderPath, rootFolder);
     
     if(isCreated){
       setRootFolder(fileScanService.scanConfiguredFolder());
@@ -72,7 +72,7 @@ public class ApiController {
 
   @PostMapping("/files/upload")
   public ResponseEntity<String> uploadFile(@RequestParam MultipartFile file, @RequestParam String parentFolderPath) {
-    Boolean isUploaded = documentService.uploadFile(file, parentFolderPath, rootFolder);
+    Boolean isUploaded = fileOperationService.uploadFile(file, parentFolderPath, rootFolder);
 
     if(isUploaded){
       setRootFolder(fileScanService.scanConfiguredFolder());
@@ -84,7 +84,7 @@ public class ApiController {
 
   @PutMapping("/folders/rename")
   public ResponseEntity<Boolean> renameFileSystemItem(@RequestParam String newName, @RequestParam String fileUrl){
-    Boolean isRenamed = documentService.renameFileSystemItem(fileUrl, newName, rootFolder);
+    Boolean isRenamed = fileOperationService.renameFileSystemItem(fileUrl, newName, rootFolder);
 
     if(isRenamed){
       setRootFolder(fileScanService.scanConfiguredFolder());
@@ -96,7 +96,7 @@ public class ApiController {
 
   @GetMapping("/folders/download")
   public ResponseEntity<StreamingResponseBody> downloadFileSystemItem(@RequestParam String fileUrl) {
-    File zipFile = documentService.downloadFileSystemItem(fileUrl, rootFolder);
+    File zipFile = fileOperationService.ZipAndDownloadFileSystemItem(fileUrl, rootFolder);
 
     if(zipFile == null){
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -126,7 +126,7 @@ public class ApiController {
 
   @PutMapping("/folders/move")
   public ResponseEntity<Boolean> moveFileSystemItem(@RequestParam String sourceUrl, @RequestParam String destinationUrl) {
-    Boolean isMoved = documentService.moveFileSystemItem(sourceUrl, destinationUrl, rootFolder);
+    Boolean isMoved = fileOperationService.moveFileSystemItem(sourceUrl, destinationUrl, rootFolder);
 
     if(isMoved){
       setRootFolder(fileScanService.scanConfiguredFolder());
@@ -138,7 +138,7 @@ public class ApiController {
 
   @PutMapping("/folders/copy")
   public ResponseEntity<Boolean> copyFileSystemItem(@RequestParam String sourceUrl, @RequestParam String destinationUrl) {
-    Boolean isCopied = documentService.copyFileSystemItem(sourceUrl, destinationUrl, rootFolder);
+    Boolean isCopied = fileOperationService.copyFileSystemItem(sourceUrl, destinationUrl, rootFolder);
 
     if(isCopied){
       setRootFolder(fileScanService.scanConfiguredFolder());
@@ -150,7 +150,7 @@ public class ApiController {
 
   @DeleteMapping("/folders/delete")
   public ResponseEntity<String> deleteFileSystemItem(@RequestParam String fileUrl) {
-    Boolean isDeleted = documentService.deleteFileSystemItem(fileUrl, rootFolder);
+    Boolean isDeleted = fileOperationService.deleteFileSystemItem(fileUrl, rootFolder);
 
     if(isDeleted){
       setRootFolder(fileScanService.scanConfiguredFolder());

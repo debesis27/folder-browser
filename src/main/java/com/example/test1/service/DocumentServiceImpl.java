@@ -12,13 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.example.test1.entity.FileSystemItem;
 import com.example.test1.entity.FolderAndFileResponseDTO;
 import com.example.test1.entity.FileSystemItemDTO;
@@ -117,8 +114,6 @@ public class DocumentServiceImpl implements DocumentService {
   }
 
   public Boolean renameFileSystemItem(String fileUrl, String newName, FileSystemItemDTO rootFolder) {
-    fileUrl = URLDecoder.decode(fileUrl, StandardCharsets.UTF_8);
-
     if (fileUrl == null || fileUrl.isEmpty() || newName == null || newName.isEmpty()) {
       return false;
     }
@@ -141,7 +136,6 @@ public class DocumentServiceImpl implements DocumentService {
   }
 
   public File downloadFileSystemItem(String fileUrl, FileSystemItemDTO rootFolder) {
-    fileUrl = URLDecoder.decode(fileUrl, StandardCharsets.UTF_8);
     File file = new File(fileUrl);
     String zipFileName = file.getName() + ".zip";
     File zipFile = new File(file.getParent(), zipFileName);
@@ -188,41 +182,35 @@ public class DocumentServiceImpl implements DocumentService {
     }
   }
 
-  public Boolean moveFileSystemItem(String fileUrl, String destinationUrl, FileSystemItemDTO rootFolder) {
-    fileUrl = URLDecoder.decode(fileUrl, StandardCharsets.UTF_8);
-    destinationUrl = URLDecoder.decode(destinationUrl, StandardCharsets.UTF_8);
-
-    if (fileUrl == null || fileUrl.isEmpty() || destinationUrl == null || destinationUrl.isEmpty()) {
+  public Boolean moveFileSystemItem(String sourceUrl, String destinationUrl, FileSystemItemDTO rootFolder) {
+    if (sourceUrl == null || sourceUrl.isEmpty() || destinationUrl == null || destinationUrl.isEmpty()) {
       return false;
     }
 
     try {
-      Path filePath = Path.of(fileUrl);
+      Path filePath = Path.of(sourceUrl);
       Path destinationPath = Path.of(destinationUrl);
       if (!Files.exists(filePath) || !Files.exists(destinationPath)) {
         return false;
       }
 
-      Path newFilePath = Path.of(destinationUrl + "\\" + filePath.getFileName());
+      Path newFilePath = destinationPath.resolve(filePath.getFileName());
       Files.move(filePath, newFilePath, StandardCopyOption.REPLACE_EXISTING);
       return true;
 
     } catch (DirectoryNotEmptyException e) {
-      deleteFileSystemItem(fileUrl, rootFolder);
-      moveFileSystemItem(fileUrl, destinationUrl, rootFolder);
+      deleteFileSystemItem(sourceUrl, rootFolder);
+      moveFileSystemItem(sourceUrl, destinationUrl, rootFolder);
       return true;
 
     } catch (Exception e) {
-      System.out.println("Error moving file: " + fileUrl);
+      System.out.println("Error moving file: " + sourceUrl);
       e.printStackTrace();
       return false;
     }
   }
 
   public Boolean copyFileSystemItem(String fileUrl, String destinationUrl, FileSystemItemDTO rootFolder) {
-    fileUrl = URLDecoder.decode(fileUrl, StandardCharsets.UTF_8);
-    destinationUrl = URLDecoder.decode(destinationUrl, StandardCharsets.UTF_8);
-
     if (fileUrl == null || fileUrl.isEmpty() || destinationUrl == null || destinationUrl.isEmpty()) {
       return false;
     }
@@ -249,7 +237,7 @@ public class DocumentServiceImpl implements DocumentService {
     }
   }
 
-  public static void copyFileSystemItemHelper(Path source, Path target) throws IOException {
+  private void copyFileSystemItemHelper(Path source, Path target) throws IOException {
     Files.walk(source)
         .forEach(sourcePath -> {
           Path targetPath = target.resolve(source.relativize(sourcePath));
@@ -262,8 +250,6 @@ public class DocumentServiceImpl implements DocumentService {
   }
 
   public Boolean deleteFileSystemItem(String fileUrl, FileSystemItemDTO rootFolder) {
-    fileUrl = URLDecoder.decode(fileUrl, StandardCharsets.UTF_8);
-
     if (fileUrl == null || fileUrl.isEmpty()) {
       return false;
     }
