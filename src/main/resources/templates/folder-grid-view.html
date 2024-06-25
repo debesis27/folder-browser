@@ -36,18 +36,18 @@
           </div>
         </div>
         <div class="toolbar-right">
-          <button class="toolbar-button" id="createButton" th:onclick="createFolder()" title="Create New Folder"><img th:src="@{/images/toolbar-operations/folder-create.svg}"></button>
+          <button class="toolbar-button" id="createFolderButton" title="Create New Folder"><img th:src="@{/images/toolbar-operations/folder-create.svg}"></button>
           <input type="file" id="fileUploadInput" style="display: none;">
-          <button class="toolbar-button" id="uploadButton" title="Upload File"><img th:src="@{/images/toolbar-operations/upload.svg}"></button>
+          <button class="toolbar-button" id="uploadFolderButton" title="Upload File"><img th:src="@{/images/toolbar-operations/upload.svg}"></button>
 
           <div class="file-specific-tools hide">
             <div class="toolbar-divider"></div>
-            <button class="toolbar-button" id="infoButton" th:onclick="'showFolderInfo()'" title="Folder Info"><img th:src="@{/images/toolbar-operations/folder-information.svg}"></button>
-            <button class="toolbar-button" id="renameButton" th:onclick="'renameFolder()'" title="Rename Folder"><img th:src="@{/images/toolbar-operations/folder-rename.svg}"></button>
-            <button class="toolbar-button" id="downloadButton" th:onclick="'downloadFolder()'" title="Download Folder"><img th:src="@{/images/toolbar-operations/folder-download.svg}"></button>
-            <button class="toolbar-button" id="moveButton" th:onclick="'moveFolder()'" title="Move Folder"><img th:src="@{/images/toolbar-operations/folder-move.svg}"></button>
-            <button class="toolbar-button" id="copyButton" th:onclick="'copyFolder()'" title="Copy Folder"><img th:src="@{/images/toolbar-operations/copy.svg}"></button>
-            <button class="toolbar-button" id="deleteButton" th:onclick="'deleteFolder()'" title="Delete Folder"><img th:src="@{/images/toolbar-operations/folder-delete.svg}"></button>
+            <button class="toolbar-button" id="folderInfoButton" title="Folder Info"><img th:src="@{/images/toolbar-operations/folder-information.svg}"></button>
+            <button class="toolbar-button" id="renameFolderButton" title="Rename Folder"><img th:src="@{/images/toolbar-operations/folder-rename.svg}"></button>
+            <button class="toolbar-button" id="downloadFolderButton" title="Download Folder"><img th:src="@{/images/toolbar-operations/folder-download.svg}"></button>
+            <button class="toolbar-button" id="moveFolderButton" title="Move Folder"><img th:src="@{/images/toolbar-operations/folder-move.svg}"></button>
+            <button class="toolbar-button" id="copyFolderButton" title="Copy Folder"><img th:src="@{/images/toolbar-operations/copy.svg}"></button>
+            <button class="toolbar-button" id="deleteFolderButton" title="Delete Folder"><img th:src="@{/images/toolbar-operations/folder-delete.svg}"></button>
           </div>
         </div>
       </div>
@@ -57,7 +57,7 @@
         <div class="navigation-container">
           <!-- Back Button -->
           <div class="back-button-container">
-            <button class="back-button" th:onclick="'goBack()'"><img th:src="@{/images/back.svg}"></button>
+            <button class="back-button pop-breadcrumb"><img th:src="@{/images/back.svg}"></button>
           </div>
 
           <!-- Breadcrumb -->
@@ -79,7 +79,7 @@
             <span class="close">&times;</span>
             <h2>Select destination folder</h2>
             <div id="miniFolderExplorer"></div>
-            <button id="selectDestinationFolderButton" class="select-button" th:onclick="'handleSelectDestinationFolderButtonClick()'">Select</button>
+            <button id="selectDestinationFolderButton" class="select-button">Select</button>
           </div>
         </div>
 
@@ -102,7 +102,7 @@
   <!--===============================================================================================================================-->
   <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
   <script th:src="@{/js/records.js}"></script>
-  <script th:src="@{/js/script.js}"></script>
+  <script type="module" th:src="@{/js/script.js}"></script>
 </body>
 
 </html>

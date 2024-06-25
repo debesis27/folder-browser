@@ -248,8 +248,6 @@ public class FileOperationServiceImpl implements FileOperationService{
       }
 
       Path newFilePath = destinationPath.resolve(sourcePath.getFileName());
-      System.out.println("sourcePath: " + sourcePath);
-      System.out.println("newFilePath: " + newFilePath);
       if (Files.isDirectory(sourcePath)) {
         Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>(){
           @Override
