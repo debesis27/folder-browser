@@ -422,6 +422,11 @@ button:focus {
 .folder img {
   height: 55px;
   margin-bottom: 10px;
+  user-select: none;
+}
+
+.folder h3 {
+  user-select: none;
 }
 
 /* Media Queries for Responsive Design */
