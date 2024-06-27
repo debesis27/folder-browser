@@ -16,6 +16,7 @@ function fetchAndShowFileBrowser(currentFolderUrl = null) {
 
 function openFolder(folder) {
   stateManager.setState({currentFolder: folder});
+  deselectFolder();
   renderFolderBrowser(folder);
   showBreadcrumbs(folder.parent.url);
 }
