@@ -56,35 +56,35 @@ public class ApiController {
   }
   
   @PostMapping("/folders/create")
-  public ResponseEntity<String> createFolder(@RequestParam String folderName, @RequestParam String parentFolderPath) {
+  public ResponseEntity<Boolean> createFolder(@RequestParam String folderName, @RequestParam String parentFolderPath) {
     if(rootFolder == null){
       rootFolder = fileScanService.scanConfiguredFolder();
     }
     
-    Boolean isCreated = fileOperationService.createFolder(folderName, parentFolderPath, rootFolder);
+    Boolean isCreated = fileOperationService.createFolder(folderName, parentFolderPath);
     
     if(isCreated){
       setRootFolder(fileScanService.scanConfiguredFolder());
-      return new ResponseEntity<>("Folder created successfully", HttpStatus.OK);
+      return new ResponseEntity<>(true, HttpStatus.OK);
     }else{
-      return new ResponseEntity<>("Folder creation failed", HttpStatus.BAD_REQUEST);}
+      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);}
   }
 
   @PostMapping("/files/upload")
-  public ResponseEntity<String> uploadFile(@RequestParam MultipartFile file, @RequestParam String parentFolderPath) {
-    Boolean isUploaded = fileOperationService.uploadFile(file, parentFolderPath, rootFolder);
+  public ResponseEntity<Boolean> uploadFile(@RequestParam MultipartFile file, @RequestParam String parentFolderPath) {
+    Boolean isUploaded = fileOperationService.uploadFile(file, parentFolderPath);
 
     if(isUploaded){
       setRootFolder(fileScanService.scanConfiguredFolder());
-      return new ResponseEntity<>("File uploaded successfully", HttpStatus.OK);
+      return new ResponseEntity<>(true, HttpStatus.OK);
     }else{
-      return new ResponseEntity<>("File upload failed", HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
     }
   }
 
   @PutMapping("/folders/rename")
   public ResponseEntity<Boolean> renameFileSystemItem(@RequestParam String newName, @RequestParam String fileUrl){
-    Boolean isRenamed = fileOperationService.renameFileSystemItem(fileUrl, newName, rootFolder);
+    Boolean isRenamed = fileOperationService.renameFileSystemItem(fileUrl, newName);
 
     if(isRenamed){
       setRootFolder(fileScanService.scanConfiguredFolder());
@@ -96,7 +96,7 @@ public class ApiController {
 
   @GetMapping("/folders/download")
   public ResponseEntity<StreamingResponseBody> downloadFileSystemItem(@RequestParam String fileUrl) {
-    File zipFile = fileOperationService.ZipAndDownloadFileSystemItem(fileUrl, rootFolder);
+    File zipFile = fileOperationService.ZipAndDownloadFileSystemItem(fileUrl);
 
     if(zipFile == null){
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -126,7 +126,7 @@ public class ApiController {
 
   @PutMapping("/folders/move")
   public ResponseEntity<Boolean> moveFileSystemItem(@RequestParam String sourceUrl, @RequestParam String destinationUrl) {
-    Boolean isMoved = fileOperationService.moveFileSystemItem(sourceUrl, destinationUrl, rootFolder);
+    Boolean isMoved = fileOperationService.moveFileSystemItem(sourceUrl, destinationUrl);
 
     if(isMoved){
       setRootFolder(fileScanService.scanConfiguredFolder());
@@ -138,7 +138,7 @@ public class ApiController {
 
   @PutMapping("/folders/copy")
   public ResponseEntity<Boolean> copyFileSystemItem(@RequestParam String sourceUrl, @RequestParam String destinationUrl) {
-    Boolean isCopied = fileOperationService.copyFileSystemItem(sourceUrl, destinationUrl, rootFolder);
+    Boolean isCopied = fileOperationService.copyFileSystemItem(sourceUrl, destinationUrl);
 
     if(isCopied){
       setRootFolder(fileScanService.scanConfiguredFolder());
@@ -149,14 +149,14 @@ public class ApiController {
   }
 
   @DeleteMapping("/folders/delete")
-  public ResponseEntity<String> deleteFileSystemItem(@RequestParam String fileUrl) {
-    Boolean isDeleted = fileOperationService.deleteFileSystemItem(fileUrl, rootFolder);
+  public ResponseEntity<Boolean> deleteFileSystemItem(@RequestParam String fileUrl) {
+    Boolean isDeleted = fileOperationService.deleteFileSystemItem(fileUrl);
 
     if(isDeleted){
       setRootFolder(fileScanService.scanConfiguredFolder());
-      return new ResponseEntity<>("File deleted successfully", HttpStatus.OK);
+      return new ResponseEntity<>(true, HttpStatus.OK);
     }else{
-      return new ResponseEntity<>("File deletion failed", HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
     }
   }
 }

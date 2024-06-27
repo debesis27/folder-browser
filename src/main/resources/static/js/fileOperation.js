@@ -47,8 +47,9 @@ function renameFolder() {
         newName: newName + (isFolder ? "" : fileExtension)
       })
     })
-      .then(data => {
-        if (data) {
+      .then(response => response.json())
+      .then(response => {
+        if (response) {
           fetchAndShowFileBrowser(currentFolder.parent.url);
           alert("File renamed successfully");
         } else {
@@ -82,6 +83,7 @@ function moveFolder(sourceUrl, destinationUrl) {
       destinationUrl: destinationUrl
     })
   })
+    .then(response => response.json())
     .then(data => {
       if (data) {
         fetchAndShowFileBrowser(currentFolder.parent.url);
@@ -108,6 +110,7 @@ function copyFolder(sourceUrl, destinationUrl) {
       destinationUrl: destinationUrl
     })
   })
+    .then(response => response.json())
     .then(data => {
       if (data) {
         fetchAndShowFileBrowser(currentFolder.parent.url);
@@ -132,6 +135,7 @@ function deleteFolder() {
     fetch("/api/folders/delete?fileUrl=" + encodeURIComponent(fileUrl), {
       method: "DELETE"
     })
+      .then(response => response.json())
       .then(data => {
         if (data) {
           fetchAndShowFileBrowser(currentFolder.parent.url);
@@ -162,6 +166,7 @@ function createFolder() {
         parentFolderPath: currentFolder.parent.url
       })
     })
+      .then(response => response.json())
       .then(data => {
         if (data) {
           fetchAndShowFileBrowser(currentFolder.parent.url);
@@ -187,6 +192,7 @@ function uploadFile(file) {
     method: "POST",
     body: formData
   })
+    .then(response => response.json())
     .then(data => {
       if(data){
         fetchAndShowFileBrowser(currentFolder.parent.url);
