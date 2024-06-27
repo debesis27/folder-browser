@@ -69,7 +69,7 @@ public class FileOperationServiceImpl implements FileOperationService{
   }
 
   @Override
-  public Boolean createFolder(String folderName, String parentFolderPath, FileSystemItemDTO rootFolder) {
+  public Boolean createFolder(String folderName, String parentFolderPath) {
     if (folderName == null || folderName.isEmpty() || parentFolderPath == null || parentFolderPath.isEmpty()) {
       return false;
     }
@@ -91,7 +91,7 @@ public class FileOperationServiceImpl implements FileOperationService{
   }
 
   @Override
-  public Boolean uploadFile(MultipartFile file, String parentFolderpath, FileSystemItemDTO rootFolder) {
+  public Boolean uploadFile(MultipartFile file, String parentFolderpath) {
     if (file == null || parentFolderpath == null || parentFolderpath.isEmpty()) {
       return false;
     }
@@ -114,7 +114,7 @@ public class FileOperationServiceImpl implements FileOperationService{
   }
 
   @Override
-  public Boolean renameFileSystemItem(String fileUrl, String newName, FileSystemItemDTO rootFolder) {
+  public Boolean renameFileSystemItem(String fileUrl, String newName) {
     if (fileUrl == null || fileUrl.isEmpty() || newName == null || newName.isEmpty()) {
       return false;
     }
@@ -138,7 +138,7 @@ public class FileOperationServiceImpl implements FileOperationService{
   }
 
   @Override
-  public File ZipAndDownloadFileSystemItem(String fileUrl, FileSystemItemDTO rootFolder) {
+  public File ZipAndDownloadFileSystemItem(String fileUrl) {
     File file = new File(fileUrl);
     Path filePath = Path.of(fileUrl);
     String zipFileName = file.getName() + ".zip";
@@ -182,7 +182,7 @@ public class FileOperationServiceImpl implements FileOperationService{
   }
 
   @Override
-  public Boolean moveFileSystemItem(String sourceUrl, String destinationUrl, FileSystemItemDTO rootFolder) {
+  public Boolean moveFileSystemItem(String sourceUrl, String destinationUrl) {
     if (sourceUrl == null || sourceUrl.isEmpty() || destinationUrl == null || destinationUrl.isEmpty()) {
       return false;
     }
@@ -197,7 +197,7 @@ public class FileOperationServiceImpl implements FileOperationService{
       Path newFilePath = destinationPath.resolve(sourcePath.getFileName());
       
       if(Files.exists(newFilePath)){
-        deleteFileSystemItem(newFilePath.toString(), rootFolder);
+        deleteFileSystemItem(newFilePath.toString());
       }
 
       Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>() {
@@ -235,7 +235,7 @@ public class FileOperationServiceImpl implements FileOperationService{
     }
   }
 
-  public Boolean copyFileSystemItem(String sourceUrl, String destinationUrl, FileSystemItemDTO rootFolder) {
+  public Boolean copyFileSystemItem(String sourceUrl, String destinationUrl) {
     if (sourceUrl == null || sourceUrl.isEmpty() || destinationUrl == null || destinationUrl.isEmpty()) {
       return false;
     }
@@ -301,7 +301,7 @@ public class FileOperationServiceImpl implements FileOperationService{
   }
 
   @Override
-  public Boolean deleteFileSystemItem(String fileUrl, FileSystemItemDTO rootFolder) {
+  public Boolean deleteFileSystemItem(String fileUrl) {
     if (fileUrl == null || fileUrl.isEmpty()) {
       return false;
     }

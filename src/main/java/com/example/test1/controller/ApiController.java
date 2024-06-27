@@ -61,7 +61,7 @@ public class ApiController {
       rootFolder = fileScanService.scanConfiguredFolder();
     }
     
-    Boolean isCreated = fileOperationService.createFolder(folderName, parentFolderPath, rootFolder);
+    Boolean isCreated = fileOperationService.createFolder(folderName, parentFolderPath);
     
     if(isCreated){
       setRootFolder(fileScanService.scanConfiguredFolder());
@@ -72,7 +72,7 @@ public class ApiController {
 
   @PostMapping("/files/upload")
   public ResponseEntity<String> uploadFile(@RequestParam MultipartFile file, @RequestParam String parentFolderPath) {
-    Boolean isUploaded = fileOperationService.uploadFile(file, parentFolderPath, rootFolder);
+    Boolean isUploaded = fileOperationService.uploadFile(file, parentFolderPath);
 
     if(isUploaded){
       setRootFolder(fileScanService.scanConfiguredFolder());
@@ -84,7 +84,7 @@ public class ApiController {
 
   @PutMapping("/folders/rename")
   public ResponseEntity<Boolean> renameFileSystemItem(@RequestParam String newName, @RequestParam String fileUrl){
-    Boolean isRenamed = fileOperationService.renameFileSystemItem(fileUrl, newName, rootFolder);
+    Boolean isRenamed = fileOperationService.renameFileSystemItem(fileUrl, newName);
 
     if(isRenamed){
       setRootFolder(fileScanService.scanConfiguredFolder());
@@ -96,7 +96,7 @@ public class ApiController {
 
   @GetMapping("/folders/download")
   public ResponseEntity<StreamingResponseBody> downloadFileSystemItem(@RequestParam String fileUrl) {
-    File zipFile = fileOperationService.ZipAndDownloadFileSystemItem(fileUrl, rootFolder);
+    File zipFile = fileOperationService.ZipAndDownloadFileSystemItem(fileUrl);
 
     if(zipFile == null){
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -126,7 +126,7 @@ public class ApiController {
 
   @PutMapping("/folders/move")
   public ResponseEntity<Boolean> moveFileSystemItem(@RequestParam String sourceUrl, @RequestParam String destinationUrl) {
-    Boolean isMoved = fileOperationService.moveFileSystemItem(sourceUrl, destinationUrl, rootFolder);
+    Boolean isMoved = fileOperationService.moveFileSystemItem(sourceUrl, destinationUrl);
 
     if(isMoved){
       setRootFolder(fileScanService.scanConfiguredFolder());
@@ -138,7 +138,7 @@ public class ApiController {
 
   @PutMapping("/folders/copy")
   public ResponseEntity<Boolean> copyFileSystemItem(@RequestParam String sourceUrl, @RequestParam String destinationUrl) {
-    Boolean isCopied = fileOperationService.copyFileSystemItem(sourceUrl, destinationUrl, rootFolder);
+    Boolean isCopied = fileOperationService.copyFileSystemItem(sourceUrl, destinationUrl);
 
     if(isCopied){
       setRootFolder(fileScanService.scanConfiguredFolder());
@@ -150,7 +150,7 @@ public class ApiController {
 
   @DeleteMapping("/folders/delete")
   public ResponseEntity<String> deleteFileSystemItem(@RequestParam String fileUrl) {
-    Boolean isDeleted = fileOperationService.deleteFileSystemItem(fileUrl, rootFolder);
+    Boolean isDeleted = fileOperationService.deleteFileSystemItem(fileUrl);
 
     if(isDeleted){
       setRootFolder(fileScanService.scanConfiguredFolder());
