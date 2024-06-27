@@ -56,7 +56,7 @@ public class ApiController {
   }
   
   @PostMapping("/folders/create")
-  public ResponseEntity<String> createFolder(@RequestParam String folderName, @RequestParam String parentFolderPath) {
+  public ResponseEntity<Boolean> createFolder(@RequestParam String folderName, @RequestParam String parentFolderPath) {
     if(rootFolder == null){
       rootFolder = fileScanService.scanConfiguredFolder();
     }
@@ -65,20 +65,20 @@ public class ApiController {
     
     if(isCreated){
       setRootFolder(fileScanService.scanConfiguredFolder());
-      return new ResponseEntity<>("Folder created successfully", HttpStatus.OK);
+      return new ResponseEntity<>(true, HttpStatus.OK);
     }else{
-      return new ResponseEntity<>("Folder creation failed", HttpStatus.BAD_REQUEST);}
+      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);}
   }
 
   @PostMapping("/files/upload")
-  public ResponseEntity<String> uploadFile(@RequestParam MultipartFile file, @RequestParam String parentFolderPath) {
+  public ResponseEntity<Boolean> uploadFile(@RequestParam MultipartFile file, @RequestParam String parentFolderPath) {
     Boolean isUploaded = fileOperationService.uploadFile(file, parentFolderPath);
 
     if(isUploaded){
       setRootFolder(fileScanService.scanConfiguredFolder());
-      return new ResponseEntity<>("File uploaded successfully", HttpStatus.OK);
+      return new ResponseEntity<>(true, HttpStatus.OK);
     }else{
-      return new ResponseEntity<>("File upload failed", HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -149,14 +149,14 @@ public class ApiController {
   }
 
   @DeleteMapping("/folders/delete")
-  public ResponseEntity<String> deleteFileSystemItem(@RequestParam String fileUrl) {
+  public ResponseEntity<Boolean> deleteFileSystemItem(@RequestParam String fileUrl) {
     Boolean isDeleted = fileOperationService.deleteFileSystemItem(fileUrl);
 
     if(isDeleted){
       setRootFolder(fileScanService.scanConfiguredFolder());
-      return new ResponseEntity<>("File deleted successfully", HttpStatus.OK);
+      return new ResponseEntity<>(true, HttpStatus.OK);
     }else{
-      return new ResponseEntity<>("File deletion failed", HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
     }
   }
 }

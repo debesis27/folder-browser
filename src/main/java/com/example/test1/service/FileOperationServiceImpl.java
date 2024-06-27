@@ -17,6 +17,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.test1.entity.FileSystemItem;
@@ -25,6 +26,9 @@ import com.example.test1.entity.FolderAndFileResponseDTO;
 
 @Service
 public class FileOperationServiceImpl implements FileOperationService{
+  @Autowired
+  private FileScanService fileScanService;
+  
   @Override
   public FolderAndFileResponseDTO searchAllFolderPathByName(String folderNameString, FileSystemItemDTO rootFolder) {
     List<FileSystemItem> resultFolderList = new ArrayList<>();
@@ -75,12 +79,12 @@ public class FileOperationServiceImpl implements FileOperationService{
     }
 
     try {
-      Path parentPath = Path.of(parentFolderPath);
+      Path newFolderPath = fileScanService.getPathFromFolderUrl(parentFolderPath).resolve(folderName);
+      Path parentPath = fileScanService.getPathFromFolderUrl(parentFolderPath);
       if (!Files.exists(parentPath) || !Files.isDirectory(parentPath)) {
         return false;
       }
 
-      Path newFolderPath = parentPath.resolve(folderName);
       Files.createDirectory(newFolderPath, new FileAttribute<?>[0]);
       return true;
     } catch (Exception e) {
@@ -97,7 +101,7 @@ public class FileOperationServiceImpl implements FileOperationService{
     }
 
     try {
-      Path parentPath = Path.of(parentFolderpath);
+      Path parentPath = fileScanService.getPathFromFolderUrl(parentFolderpath);
 
       if (!Files.exists(parentPath) || !Files.isDirectory(parentPath)) {
         return false;
@@ -120,13 +124,13 @@ public class FileOperationServiceImpl implements FileOperationService{
     }
 
     try {
-      Path filePath = Path.of(fileUrl);
+      Path filePath = fileScanService.getPathFromFolderUrl(fileUrl);
       
       if (!Files.exists(filePath)) {
         return false;
       }
 
-      Path newFilePath = Path.of(fileUrl.substring(0, fileUrl.lastIndexOf("\\")) + "\\" + newName);
+      Path newFilePath = fileScanService.getPathFromFolderUrl(fileUrl.substring(0, fileUrl.lastIndexOf("\\")) + "\\" + newName);
       Files.move(filePath, newFilePath);
       return true;
 
@@ -139,8 +143,8 @@ public class FileOperationServiceImpl implements FileOperationService{
 
   @Override
   public File ZipAndDownloadFileSystemItem(String fileUrl) {
-    File file = new File(fileUrl);
-    Path filePath = Path.of(fileUrl);
+    Path filePath = fileScanService.getPathFromFolderUrl(fileUrl);
+    File file = filePath.toFile();
     String zipFileName = file.getName() + ".zip";
     File zipFile = new File(file.getParent(), zipFileName);
 
@@ -188,8 +192,8 @@ public class FileOperationServiceImpl implements FileOperationService{
     }
 
     try {
-      Path sourcePath = Path.of(sourceUrl);
-      Path destinationPath = Path.of(destinationUrl);
+      Path sourcePath = fileScanService.getPathFromFolderUrl(sourceUrl);
+      Path destinationPath = fileScanService.getPathFromFolderUrl(destinationUrl);
       if (!Files.exists(sourcePath) || !Files.exists(destinationPath)) {
         return false;
       }
@@ -241,8 +245,8 @@ public class FileOperationServiceImpl implements FileOperationService{
     }
 
     try {
-      Path sourcePath = Path.of(sourceUrl);
-      Path destinationPath = Path.of(destinationUrl);
+      Path sourcePath = fileScanService.getPathFromFolderUrl(sourceUrl);
+      Path destinationPath = fileScanService.getPathFromFolderUrl(destinationUrl);
       if (!Files.exists(sourcePath) || !Files.exists(destinationPath)) {
         return false;
       }
@@ -307,7 +311,7 @@ public class FileOperationServiceImpl implements FileOperationService{
     }
 
     try {
-      Path filePath = Path.of(fileUrl);
+      Path filePath = fileScanService.getPathFromFolderUrl(fileUrl);
       if (!Files.exists(filePath)) {
         return false;
       }

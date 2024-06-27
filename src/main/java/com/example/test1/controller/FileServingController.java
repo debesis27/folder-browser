@@ -2,7 +2,8 @@ package com.example.test1.controller;
 
 import java.nio.file.Path;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -13,13 +14,19 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.example.test1.service.FileScanService;
+
 
 @Controller
 public class FileServingController {
+  @Autowired
+  private FileScanService fileScanService;
+
   @GetMapping("/file")
   public ResponseEntity<Resource> serveFile(@RequestParam String path) {
+    Path rootPath = Path.of(fileScanService.getRootFolderUrl()).toAbsolutePath().normalize();
     try {
-      Path filePath = Paths.get(path).toAbsolutePath().normalize();
+      Path filePath = fileScanService.getPathFromFolderUrl(path);
       Resource resource = new FileSystemResource(filePath);
 
       if(!resource.exists()){
@@ -42,5 +49,4 @@ public class FileServingController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
   }
-  
 }
