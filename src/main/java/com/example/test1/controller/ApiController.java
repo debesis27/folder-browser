@@ -2,6 +2,8 @@ package com.example.test1.controller;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -11,9 +13,11 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.example.test1.entity.FolderAndFileResponseDTO;
+import com.example.test1.entity.CopyOrMoveFileSystemItemDTO;
 import com.example.test1.entity.FileSystemItemDTO;
 import com.example.test1.service.FileOperationServiceImpl;
 import com.example.test1.service.FileScanServiceImpl;
@@ -94,9 +98,9 @@ public class ApiController {
     }
   }
 
-  @GetMapping("/folders/download")
-  public ResponseEntity<StreamingResponseBody> downloadFileSystemItem(@RequestParam String fileUrl) {
-    File zipFile = fileOperationService.ZipAndDownloadFileSystemItem(fileUrl);
+  @PostMapping("/folders/download")
+  public ResponseEntity<StreamingResponseBody> downloadFileSystemItem(@RequestBody List<String> fileUrlList) {
+    File zipFile = fileOperationService.ZipAndDownloadFileSystemItem(fileUrlList);
 
     if(zipFile == null){
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -125,38 +129,38 @@ public class ApiController {
   }
 
   @PutMapping("/folders/move")
-  public ResponseEntity<Boolean> moveFileSystemItem(@RequestParam String sourceUrl, @RequestParam String destinationUrl) {
-    Boolean isMoved = fileOperationService.moveFileSystemItem(sourceUrl, destinationUrl);
+  public ResponseEntity<List<String>> moveFileSystemItem(@RequestBody CopyOrMoveFileSystemItemDTO moveFileSystemItemDTO) {
+    List<String> failedFileList = fileOperationService.moveFileSystemItem(moveFileSystemItemDTO.getSourceUrlList(), moveFileSystemItemDTO.getDestinationUrl());
 
-    if(isMoved){
+    if(failedFileList.isEmpty()){
       setRootFolder(fileScanService.scanConfiguredFolder());
-      return new ResponseEntity<>(true, HttpStatus.OK);
+      return new ResponseEntity<>(failedFileList, HttpStatus.OK);
     }else{
-      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>(failedFileList, HttpStatus.BAD_REQUEST);
     }
   }
 
   @PutMapping("/folders/copy")
-  public ResponseEntity<Boolean> copyFileSystemItem(@RequestParam String sourceUrl, @RequestParam String destinationUrl) {
-    Boolean isCopied = fileOperationService.copyFileSystemItem(sourceUrl, destinationUrl);
+  public ResponseEntity<List<String>> copyFileSystemItem(@RequestBody CopyOrMoveFileSystemItemDTO copyFileSystemItemDTO) {
+    List<String> failedFileList = fileOperationService.copyFileSystemItem(copyFileSystemItemDTO.getSourceUrlList(), copyFileSystemItemDTO.getDestinationUrl());
 
-    if(isCopied){
+    if(failedFileList.isEmpty()){
       setRootFolder(fileScanService.scanConfiguredFolder());
-      return new ResponseEntity<>(true, HttpStatus.OK);
+      return new ResponseEntity<>(failedFileList, HttpStatus.OK);
     }else{
-      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>(failedFileList, HttpStatus.BAD_REQUEST);
     }
   }
 
   @DeleteMapping("/folders/delete")
-  public ResponseEntity<Boolean> deleteFileSystemItem(@RequestParam String fileUrl) {
-    Boolean isDeleted = fileOperationService.deleteFileSystemItem(fileUrl);
+  public ResponseEntity<List<String>> deleteFileSystemItem(@RequestBody List<String> fileUrlList) {
+    List<String> failedFileList = fileOperationService.deleteFileSystemItem(fileUrlList);
 
-    if(isDeleted){
+    if(failedFileList.isEmpty()){
       setRootFolder(fileScanService.scanConfiguredFolder());
-      return new ResponseEntity<>(true, HttpStatus.OK);
+      return new ResponseEntity<>(failedFileList, HttpStatus.OK);
     }else{
-      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>(failedFileList, HttpStatus.BAD_REQUEST);
     }
   }
 }

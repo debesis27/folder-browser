@@ -165,6 +165,10 @@ button:focus {
   outline: none;
 }
 
+.toolbar-button.hide {
+  display: none;
+}
+
 .toolbar-divider {
   width: 1px;
   height: 40px;

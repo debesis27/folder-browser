@@ -1,10 +1,10 @@
 import stateManager from "./stateManager.js";
 import { findFolderByPath, formatBytes } from "./utils.js";
 import { openFileExplorerModel } from "./miniFileBrowser.js";
-import { fetchAndShowFileBrowser } from "./fileBrowser.js";
+import { fetchAndShowFileBrowser, deselectFolder } from "./fileBrowser.js";
 
 function showFolderInfo() {
-  const selectedFileSystemItem = stateManager.getState().selectedFileSystemItem;
+  const selectedFileSystemItem = stateManager.getState().selectedFileSystemItemList[0];
 
   const isFolder = selectedFileSystemItem.parent != undefined;
   const folderOrFileText = isFolder ? "Folder" : "File";
@@ -27,7 +27,7 @@ function showFolderInfo() {
 }
 
 function renameFolder() {
-  const selectedFileSystemItem = stateManager.getState().selectedFileSystemItem;
+  const selectedFileSystemItem = stateManager.getState().selectedFileSystemItemList[0];
   const currentFolder = stateManager.getState().currentFolder;
 
   const isFolder = selectedFileSystemItem.parent != undefined;
@@ -63,33 +63,60 @@ function renameFolder() {
 }
 
 function downloadFolder() {
-  const selectedFileSystemItem = stateManager.getState().selectedFileSystemItem;
+  const selectedFileSystemItemList = stateManager.getState().selectedFileSystemItemList;
+  const fileUrlList = [];
 
-  let isFolder = selectedFileSystemItem.parent != undefined;
-  let fileUrl = isFolder ? selectedFileSystemItem.parent.url : selectedFileSystemItem.url;
-  window.open("/api/folders/download?fileUrl=" + encodeURIComponent(fileUrl), "_blank");
+  for(let i = 0; i < selectedFileSystemItemList.length; i++) {
+    let isFolder = selectedFileSystemItemList[i].parent != undefined;
+    let fileUrl = isFolder ? selectedFileSystemItemList[i].parent.url : selectedFileSystemItemList[i].url;
+    fileUrlList.push(fileUrl);
+  }
+
+  fetch("/api/folders/download", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(fileUrlList)
+  })
+  .then(response => {
+    if (response.ok) return response.blob();
+    throw new Error('Network response was not ok.');
+  })
+  .then(blob => {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = "download.zip";
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+  })
+  .catch(error => console.error('There was an error:', error));
 }
 
-function moveFolder(sourceUrl, destinationUrl) {
+function moveFolder(sourceUrlList, destinationUrl) {
   const currentFolder = stateManager.getState().currentFolder;
 
   fetch("/api/folders/move", {
     method: "PUT",
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
+      "Content-Type": "application/json"
     },
-    body: new URLSearchParams({
-      sourceUrl: sourceUrl,
+    body: JSON.stringify({
+      sourceUrlList: sourceUrlList,
       destinationUrl: destinationUrl
     })
   })
     .then(response => response.json())
     .then(data => {
-      if (data) {
+      if (data.length == 0) {
         fetchAndShowFileBrowser(currentFolder.parent.url);
         alert("File moved successfully");
       } else {
-        alert("Failed to move file");
+        alert("Some or all files failed to move. Please check the server logs for more information.");
+        console.error("Failed to move files: \n", data);
       }
     })
     .catch(error => {
@@ -97,26 +124,27 @@ function moveFolder(sourceUrl, destinationUrl) {
     });
 }
 
-function copyFolder(sourceUrl, destinationUrl) {
+function copyFolder(sourceUrlList, destinationUrl) {
   const currentFolder = stateManager.getState().currentFolder;
 
   fetch("/api/folders/copy", {
     method: "PUT",
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
+      "Content-Type": "application/json"
     },
-    body: new URLSearchParams({
-      sourceUrl: sourceUrl,
+    body: JSON.stringify({
+      sourceUrlList: sourceUrlList,
       destinationUrl: destinationUrl
     })
   })
     .then(response => response.json())
     .then(data => {
-      if (data) {
+      if (data.length == 0) {
         fetchAndShowFileBrowser(currentFolder.parent.url);
         alert("File copied successfully");
       } else {
-        alert("Failed to copy file");
+        alert("Some or all files failed to copy. Please check the server logs for more information.");
+        console.error("Failed to copy files: \n", data);
       }
     })
     .catch(error => {
@@ -125,23 +153,32 @@ function copyFolder(sourceUrl, destinationUrl) {
 }
 
 function deleteFolder() {
-  const selectedFileSystemItem = stateManager.getState().selectedFileSystemItem;
+  const selectedFileSystemItemList = stateManager.getState().selectedFileSystemItemList;
   const currentFolder = stateManager.getState().currentFolder;
 
-  const isFolder = selectedFileSystemItem.parent != undefined;
-  let fileUrl = isFolder ? selectedFileSystemItem.parent.url : selectedFileSystemItem.url;
+  const fileUrlList = [];
+  for(let i = 0; i < selectedFileSystemItemList.length; i++) {
+    let isFolder = selectedFileSystemItemList[i].parent != undefined;
+    let fileUrl = isFolder ? selectedFileSystemItemList[i].parent.url : selectedFileSystemItemList[i].url;
+    fileUrlList.push(fileUrl);
+  }
 
-  if (confirm("Are you sure you want to delete this " + (isFolder ? "folder" : "file") + "?")) {
-    fetch("/api/folders/delete?fileUrl=" + encodeURIComponent(fileUrl), {
-      method: "DELETE"
+  if (confirm("Are you sure you want to delete the selected items?")) {
+    fetch("/api/folders/delete", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(fileUrlList)
     })
       .then(response => response.json())
       .then(data => {
-        if (data) {
+        if (data.length == 0) {
           fetchAndShowFileBrowser(currentFolder.parent.url);
           alert("File deleted successfully");
         } else {
-          alert("Failed to delete file");
+          alert("Some or all files failed to delete. Please check the server logs for more information.");
+          console.error("Failed to delete files: \n", data);
         }
       })
       .catch(error => {
@@ -208,7 +245,7 @@ function uploadFile(file) {
 
 export function bindFileOperationEvents() {
   $("#createFolderButton").click(createFolder);
-  $("#uploadFileButton").click(function() {
+  $("#uploadFolderButton").click(function() {
     $("#fileUploadInput").click();
   });
   $("#folderInfoButton").click(showFolderInfo);

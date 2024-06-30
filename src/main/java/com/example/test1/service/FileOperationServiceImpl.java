@@ -13,6 +13,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -142,207 +143,237 @@ public class FileOperationServiceImpl implements FileOperationService{
   }
 
   @Override
-  public File ZipAndDownloadFileSystemItem(String fileUrl) {
-    Path filePath = fileScanService.getPathFromFolderUrl(fileUrl);
-    File file = filePath.toFile();
-    String zipFileName = file.getName() + ".zip";
-    File zipFile = new File(file.getParent(), zipFileName);
+  public File ZipAndDownloadFileSystemItem(List<String> fileUrlList) {
+    String zipFileName = "download.zip";
+    File zipFile = new File(fileScanService.getPathFromFolderUrl(fileUrlList.get(0)).toFile().getParent(), zipFileName);
 
-    try(
+    try (
       FileOutputStream fos = new FileOutputStream(zipFile);
       ZipOutputStream zos = new ZipOutputStream(fos)
     ) {
-      if(!Files.isDirectory(filePath)){
-        zos.putNextEntry(new ZipEntry(file.getName()));
-        Files.copy(filePath, zos);
-        zos.closeEntry();
-        return zipFile;
-      }
+      for (String fileUrl : fileUrlList) {
+        Path filePath = fileScanService.getPathFromFolderUrl(fileUrl);
+        File file = filePath.toFile();
 
-      Files.walk(filePath).forEach(sourcePath -> {
-        try {
-          String ZipEntryname = filePath.getFileName().toString() + "/" + filePath.relativize(sourcePath).toString();
-          if (Files.isDirectory(sourcePath)) {
-            zos.putNextEntry(new ZipEntry(ZipEntryname + "/"));
-            zos.closeEntry();
-          } else {
-            zos.putNextEntry(new ZipEntry(ZipEntryname));
-            Files.copy(sourcePath, zos);
-            zos.closeEntry();
-          }
-        } catch (IOException e) {
-          System.out.println("Error zipping file: " + sourcePath.toString());
-          e.printStackTrace();
+        if (!Files.isDirectory(filePath)) {
+          zos.putNextEntry(new ZipEntry(file.getName()));
+          Files.copy(filePath, zos);
+          zos.closeEntry();
+        }else{
+          Files.walk(filePath).forEach(sourcePath -> {
+            try {
+              String zipEntryName = filePath.getFileName().toString() + "/" + filePath.relativize(sourcePath).toString();
+              if (Files.isDirectory(sourcePath)) {
+                zos.putNextEntry(new ZipEntry(zipEntryName + "/"));
+                zos.closeEntry();
+              } else {
+                zos.putNextEntry(new ZipEntry(zipEntryName));
+                Files.copy(sourcePath, zos);
+                zos.closeEntry();
+              }
+            } catch (IOException e) {
+                System.out.println("Error zipping file: " + sourcePath.toString());
+                e.printStackTrace();
+            }
+          });
         }
-      });
-
+      }
     } catch (Exception e) {
-      System.out.println("Error zipping file: " + fileUrl);
-      e.printStackTrace();
-      return null;
+        System.out.println("Error zipping file: " + fileUrlList);
+        e.printStackTrace();
     }
 
     return zipFile;
   }
 
   @Override
-  public Boolean moveFileSystemItem(String sourceUrl, String destinationUrl) {
-    if (sourceUrl == null || sourceUrl.isEmpty() || destinationUrl == null || destinationUrl.isEmpty()) {
-      return false;
+  public List<String> moveFileSystemItem(List<String> sourceUrlList, String destinationUrl) {
+    if (sourceUrlList == null || sourceUrlList.isEmpty() || destinationUrl == null || destinationUrl.isEmpty()) {
+      List<String> error = new ArrayList<>();
+      error.add("Error: sourceUrlList or destinationUrl is empty");
+      return error;
     }
 
-    try {
-      Path sourcePath = fileScanService.getPathFromFolderUrl(sourceUrl);
-      Path destinationPath = fileScanService.getPathFromFolderUrl(destinationUrl);
-      if (!Files.exists(sourcePath) || !Files.exists(destinationPath)) {
-        return false;
-      }
+    Path destinationPath = fileScanService.getPathFromFolderUrl(destinationUrl);
+    if(!Files.exists(destinationPath) || !Files.isDirectory(destinationPath)){
+      List<String> error = new ArrayList<>();
+      error.add("Error: destinationUrl is not a valid directory");
+      return error;
+    }
 
+    List<String> failedFileNameList = new CopyOnWriteArrayList<>();
+    sourceUrlList.forEach(sourceUrl -> {
+      Path sourcePath = fileScanService.getPathFromFolderUrl(sourceUrl);
+      if (!Files.exists(sourcePath)) {
+        failedFileNameList.add("No file for URL: " + sourceUrl);
+        return;
+      }
+  
       Path newFilePath = destinationPath.resolve(sourcePath.getFileName());
-      
       if(Files.exists(newFilePath)){
-        deleteFileSystemItem(newFilePath.toString());
+        List<String> temporaryList = new ArrayList<>();
+        temporaryList.add(newFilePath.toString());
+        deleteFileSystemItem(temporaryList);
       }
 
-      Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>() {
-        @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-          Path targetDir = newFilePath.resolve(sourcePath.relativize(dir));
-          Files.createDirectories(targetDir);
-          return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-          Path targetFile = newFilePath.resolve(sourcePath.relativize(file));
-          Files.move(file, targetFile, StandardCopyOption.REPLACE_EXISTING);
-          return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-          if (exc == null) {
-            Files.delete(dir);
-            return FileVisitResult.CONTINUE;
-          } else {
-            throw exc;
-          }
-        }
-      });
-
-      return true;
-
-    } catch (Exception e) {
-      System.out.println("Error moving file: " + sourceUrl);
-      e.printStackTrace();
-      return false;
-    }
-  }
-
-  public Boolean copyFileSystemItem(String sourceUrl, String destinationUrl) {
-    if (sourceUrl == null || sourceUrl.isEmpty() || destinationUrl == null || destinationUrl.isEmpty()) {
-      return false;
-    }
-
-    try {
-      Path sourcePath = fileScanService.getPathFromFolderUrl(sourceUrl);
-      Path destinationPath = fileScanService.getPathFromFolderUrl(destinationUrl);
-      if (!Files.exists(sourcePath) || !Files.exists(destinationPath)) {
-        return false;
-      }
-
-      Path newFilePath = destinationPath.resolve(sourcePath.getFileName());
-      if (Files.isDirectory(sourcePath)) {
-        Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>(){
+      try {
+        Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>() {
           @Override
           public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
             Path targetDir = newFilePath.resolve(sourcePath.relativize(dir));
-            try {
-              Files.copy(dir, targetDir);
-            } catch (FileAlreadyExistsException e) {
-              if(!Files.isDirectory(newFilePath)){
-                throw e;
-              }
-            }
-
+            Files.createDirectories(targetDir);
             return FileVisitResult.CONTINUE;
           }
-
+  
           @Override
           public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             Path targetFile = newFilePath.resolve(sourcePath.relativize(file));
-            Files.copy(file, targetFile, StandardCopyOption.REPLACE_EXISTING);
-
+            Files.move(file, targetFile, StandardCopyOption.REPLACE_EXISTING);
             return FileVisitResult.CONTINUE;
-          }
-
-          @Override
-          public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-              System.err.println("Error visiting file: " + file.toString());
-              exc.printStackTrace();
-              return FileVisitResult.CONTINUE;
           }
   
           @Override
           public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-              if (exc != null) {
-                  System.err.println("Error visiting directory: " + dir.toString());
-                  exc.printStackTrace();
-              }
+            if (exc == null) {
+              Files.delete(dir);
               return FileVisitResult.CONTINUE;
+            } else {
+              throw exc;
+            }
           }
         });
-      } else {
-        Files.copy(sourcePath, newFilePath, StandardCopyOption.REPLACE_EXISTING);
+      } catch (Exception e) {
+        System.out.println("Error moving file: " + sourceUrlList);
+        failedFileNameList.add(sourcePath.getFileName().toString());
+        e.printStackTrace();
       }
-      return true;
+    });
 
-    } catch (Exception e) {
-      System.out.println("Error copying file: " + sourceUrl);
-      e.printStackTrace();
-      return false;
+    return failedFileNameList;
+  }
+
+  public List<String> copyFileSystemItem(List<String> sourceUrlList, String destinationUrl) {
+    if (sourceUrlList == null || sourceUrlList.isEmpty() || destinationUrl == null || destinationUrl.isEmpty()) {
+      List<String> error = new ArrayList<>();
+      error.add("Error: sourceUrlList or destinationUrl is empty");
+      return error;
     }
+
+    Path destinationPath = fileScanService.getPathFromFolderUrl(destinationUrl);
+    if(!Files.exists(destinationPath) || !Files.isDirectory(destinationPath)){
+      List<String> error = new ArrayList<>();
+      error.add("Error: destinationUrl is not a valid directory");
+      return error;
+    }
+
+    List<String> failedFileNameList = new CopyOnWriteArrayList<>();
+    sourceUrlList.forEach(sourceUrl -> {
+      Path sourcePath = fileScanService.getPathFromFolderUrl(sourceUrl);
+      if (!Files.exists(sourcePath)) {
+        failedFileNameList.add("No file for URL: " + sourceUrl);
+        return;
+      }
+  
+      Path newFilePath = destinationPath.resolve(sourcePath.getFileName());
+      
+      try {
+        if (Files.isDirectory(sourcePath)) {
+          Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>(){
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+              Path targetDir = newFilePath.resolve(sourcePath.relativize(dir));
+              try {
+                Files.copy(dir, targetDir);
+              } catch (FileAlreadyExistsException e) {
+                if(!Files.isDirectory(newFilePath)){
+                  throw e;
+                }
+              }
+  
+              return FileVisitResult.CONTINUE;
+            }
+  
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+              Path targetFile = newFilePath.resolve(sourcePath.relativize(file));
+              Files.copy(file, targetFile, StandardCopyOption.REPLACE_EXISTING);
+  
+              return FileVisitResult.CONTINUE;
+            }
+  
+            @Override
+            public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                System.err.println("Error visiting file: " + file.toString());
+                exc.printStackTrace();
+                return FileVisitResult.CONTINUE;
+            }
+    
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                if (exc != null) {
+                    System.err.println("Error visiting directory: " + dir.toString());
+                    exc.printStackTrace();
+                }
+                return FileVisitResult.CONTINUE;
+            }
+          });
+        } else {
+          Files.copy(sourcePath, newFilePath, StandardCopyOption.REPLACE_EXISTING);
+        }
+      }catch (Exception e) {
+        failedFileNameList.add(sourcePath.getFileName().toString());
+        System.out.println("Error copying file: " + sourceUrlList);
+        e.printStackTrace();
+      }
+    });
+
+    return failedFileNameList;
   }
 
   @Override
-  public Boolean deleteFileSystemItem(String fileUrl) {
-    if (fileUrl == null || fileUrl.isEmpty()) {
-      return false;
+  public List<String> deleteFileSystemItem(List<String> fileUrlList) {
+    if (fileUrlList == null || fileUrlList.isEmpty()) {
+      List<String> error = new ArrayList<>();
+      error.add("Error: fileUrlList is empty");
+      return error;
     }
 
-    try {
+    List<String> failedFileNameList = new CopyOnWriteArrayList<>();
+    fileUrlList.forEach(fileUrl -> {
       Path filePath = fileScanService.getPathFromFolderUrl(fileUrl);
       if (!Files.exists(filePath)) {
-        return false;
+        failedFileNameList.add("No file for URL: " + fileUrl);
+        return;
       }
 
-      Files.walkFileTree(filePath, new SimpleFileVisitor<Path>(){
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-          Files.delete(file);
-          return FileVisitResult.CONTINUE;
-        }
+      try {
+        Files.walkFileTree(filePath, new SimpleFileVisitor<Path>(){
+          @Override
+          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            Files.delete(file);
+            return FileVisitResult.CONTINUE;
+          }
+  
+          @Override
+          public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+            Files.delete(dir);
+            return FileVisitResult.CONTINUE;
+          }
+  
+          @Override
+          public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+            System.out.println("Error deleting file: " + file.toString());
+            exc.printStackTrace();
+            return FileVisitResult.CONTINUE;
+          }
+        });
+      } catch (Exception e) {
+        failedFileNameList.add(filePath.getFileName().toString());
+        System.out.println("Error deleting file: " + fileUrlList);
+        e.printStackTrace();
+      }
+    });
 
-        @Override
-        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-          Files.delete(dir);
-          return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-          System.out.println("Error deleting file: " + file.toString());
-          exc.printStackTrace();
-          return FileVisitResult.CONTINUE;
-        }
-      });
-
-      return true;
-
-    } catch (Exception e) {
-      System.out.println("Error deleting file: " + fileUrl);
-      e.printStackTrace();
-      return false;
-    }
+    return failedFileNameList;
   }
 }

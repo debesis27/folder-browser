@@ -24,7 +24,6 @@ public class FileServingController {
 
   @GetMapping("/file")
   public ResponseEntity<Resource> serveFile(@RequestParam String path) {
-    Path rootPath = Path.of(fileScanService.getRootFolderUrl()).toAbsolutePath().normalize();
     try {
       Path filePath = fileScanService.getPathFromFolderUrl(path);
       Resource resource = new FileSystemResource(filePath);
