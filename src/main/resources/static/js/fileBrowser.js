@@ -96,32 +96,58 @@ function popBreadcrumb() {
 }
 
 function selectFolder(element, item) {
-  let selectedFileSystemItem = stateManager.getState().selectedFileSystemItem;
-  let selectedFileSystemItemElement = stateManager.getState().selectedFileSystemItemElement;
+  let selectedFileSystemItemList = stateManager.getState().selectedFileSystemItemList;
+  let selectedFileSystemItemElementList = stateManager.getState().selectedFileSystemItemElementList;
 
-  if (selectedFileSystemItem != null) {
-    if (selectedFileSystemItemElement == element) {
-      deselectFolder();
+  if (selectedFileSystemItemList.length > 0) {
+    if (selectedFileSystemItemList.includes(item)) {
+      deselectFolder(item);
       return;
     }
-
-    deselectFolder();
   }
 
-  stateManager.setState({selectedFileSystemItem: item, selectedFileSystemItemElement: element});
+  selectedFileSystemItemList.push(item);
+  selectedFileSystemItemElementList.push(element);
+
+  if(selectedFileSystemItemList.length == 1 ){
+    $("#folderInfoButton").removeClass("hide");
+    $("#renameFolderButton").removeClass("hide");
+  }else{
+    $("#folderInfoButton").addClass("hide");
+    $("#renameFolderButton").addClass("hide");
+  }
+
+  stateManager.setState({selectedFileSystemItemList: selectedFileSystemItemList, selectedFileSystemItemElementList: selectedFileSystemItemElementList});
   element.addClass("selected");
   $(".file-specific-tools").removeClass("hide");
 }
 
-function deselectFolder() {
-  let selectedFileSystemItem = stateManager.getState().selectedFileSystemItem;
-  let selectedFileSystemItemElement = stateManager.getState().selectedFileSystemItemElement;
+function deselectFolder(item = null) {
+  let selectedFileSystemItemList = stateManager.getState().selectedFileSystemItemList;
+  let selectedFileSystemItemElementList = stateManager.getState().selectedFileSystemItemElementList;
 
-  if (!selectedFileSystemItem) return;
+  if (selectedFileSystemItemList.length == 0) return;
+  if(item == null || selectedFileSystemItemList.length == 1){
+    selectedFileSystemItemElementList.forEach(element => {
+      element.removeClass("selected");
+    });
+    $(".file-specific-tools").addClass("hide");
+    stateManager.setState({selectedFileSystemItemList: [], selectedFileSystemItemElementList: []});
+  }else{
+    let index = selectedFileSystemItemList.indexOf(item);
+    selectedFileSystemItemElementList[index].removeClass("selected");
+    selectedFileSystemItemList.splice(index, 1);
+    selectedFileSystemItemElementList.splice(index, 1);
 
-  selectedFileSystemItemElement.removeClass("selected");
-  $(".file-specific-tools").addClass("hide");
-  stateManager.setState({selectedFileSystemItem: null, selectedFileSystemItemElement: null});
+    if(selectedFileSystemItemList.length == 1){
+      $("#folderInfoButton").removeClass("hide");
+      $("#renameFolderButton").removeClass("hide");
+    }else{
+      $("#folderInfoButton").addClass("hide");
+      $("#renameFolderButton").addClass("hide");
+    }
+    stateManager.setState({selectedFileSystemItemList: selectedFileSystemItemList, selectedFileSystemItemElementList: selectedFileSystemItemElementList});
+  }
 }
 
 export function bindFileBrowserEvents() {
@@ -137,5 +163,6 @@ export function bindFileBrowserEvents() {
 
 export {
   fetchAndShowFileBrowser,
-  openFolder
+  openFolder,
+  deselectFolder
 }

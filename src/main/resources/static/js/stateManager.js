@@ -4,8 +4,8 @@ class StateManager {
       this._state = {
         rootFolder: null,
         currentFolder: null,
-        selectedFileSystemItem: null,
-        selectedFileSystemItemElement: null,
+        selectedFileSystemItemList: [],
+        selectedFileSystemItemElementList: [],
         selectedDestinationFolder: null,
       };
       StateManager.instance = this;

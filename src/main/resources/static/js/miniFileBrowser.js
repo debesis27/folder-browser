@@ -1,17 +1,22 @@
 import stateManager from "./stateManager.js";
 import { copyFolder, moveFolder } from "./fileOperation.js";
+import { findFolderByPath } from "./utils.js";
 
 function handleSelectDestinationFolderButtonClick() {
-  const selectedFileSystemItem = stateManager.getState().selectedFileSystemItem;
+  const selectedFileSystemItem = stateManager.getState().selectedFileSystemItemList;
   const selectedDestinationFolder = stateManager.getState().selectedDestinationFolder;
   const isCopyOperation = stateManager.getState().isCopyOperation;
 
   if(selectedDestinationFolder == null) return;
 
-  const sourceUrl = selectedFileSystemItem.parent != undefined ? selectedFileSystemItem.parent.url : selectedFileSystemItem.url;
   const destinationUrl = selectedDestinationFolder.parent.url;
+  const sourceUrlList = [];
 
-  isCopyOperation ? copyFolder(sourceUrl, destinationUrl) : moveFolder(sourceUrl, destinationUrl);
+  for(let i = 0; i < selectedFileSystemItem.length; i++) {
+    sourceUrlList.push(selectedFileSystemItem[i].parent != undefined ? selectedFileSystemItem[i].parent.url : selectedFileSystemItem[i].url);
+  }
+
+  isCopyOperation ? copyFolder(sourceUrlList, destinationUrl) : moveFolder(sourceUrlList, destinationUrl);
 
   $(".modal").addClass("hide");
   stateManager.setState({selectedDestinationFolder: null});
@@ -26,7 +31,7 @@ function openFileExplorerModel() {
 }
 
 function renderFolderExplorer(currentFolder) {
-  let selectedFileSystemItem = stateManager.getState().selectedFileSystemItem;
+  let selectedFileSystemItem = stateManager.getState().selectedFileSystemItemList;
   let selectedDestinationFolder = stateManager.getState().selectedDestinationFolder;
 
   $("#miniFolderExplorer").empty();

@@ -1,6 +1,7 @@
 package com.example.test1.service;
 
 import java.io.File;
+import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,8 +13,8 @@ public interface FileOperationService {
   public Boolean createFolder(String folderName, String parentFolderPath);
   public Boolean uploadFile(MultipartFile file, String parentFolderpath);
   public Boolean renameFileSystemItem(String fileUrl, String newName);
-  public File ZipAndDownloadFileSystemItem(String fileUrl);
-  public Boolean moveFileSystemItem(String sourceUrl, String destinationUrl);
-  public Boolean copyFileSystemItem(String sourceUrl, String destinationUrl);
-  public Boolean deleteFileSystemItem(String fileUrl);
+  public File ZipAndDownloadFileSystemItem(List<String> fileUrlList);
+  public List<String> moveFileSystemItem(List<String> sourceUrlList, String destinationUrl);
+  public List<String> copyFileSystemItem(List<String> sourceUrlList, String destinationUrl);
+  public List<String> deleteFileSystemItem(List<String> fileUrlList);
 }
