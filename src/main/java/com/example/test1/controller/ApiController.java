@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.example.test1.entity.FolderAndFileResponseDTO;
+import com.example.test1.entity.SearchResponseDTO;
 import com.example.test1.entity.CopyOrMoveFileSystemItemDTO;
 import com.example.test1.entity.FileSystemItemDTO;
 import com.example.test1.service.FileOperationServiceImpl;
@@ -49,12 +49,12 @@ public class ApiController {
   }
 
   @GetMapping("/folders/search")
-  public ResponseEntity<FolderAndFileResponseDTO> getAllFolderPathByName(@RequestParam String folderName) {
+  public ResponseEntity<SearchResponseDTO> getAllFolderPathByName(@RequestParam String folderName) {
     if(rootFolder == null){
       rootFolder = fileScanService.scanConfiguredFolder();
     }
 
-    FolderAndFileResponseDTO path = fileOperationService.searchAllFolderPathByName(folderName, rootFolder);
+    SearchResponseDTO path = fileOperationService.searchAllFolderPathByName(folderName, rootFolder);
     
     return new ResponseEntity<>(path, HttpStatus.OK);
   }
@@ -75,14 +75,14 @@ public class ApiController {
   }
 
   @PostMapping("/files/upload")
-  public ResponseEntity<Boolean> uploadFile(@RequestParam MultipartFile file, @RequestParam String parentFolderPath) {
-    Boolean isUploaded = fileOperationService.uploadFile(file, parentFolderPath);
+  public ResponseEntity<List<String>> uploadFiles(@RequestParam("files") MultipartFile[] files, @RequestParam String parentFolderPath) {
+    List<String> failedFileList = fileOperationService.uploadFiles(files, parentFolderPath);
 
-    if(isUploaded){
+    if(failedFileList.isEmpty()){
       setRootFolder(fileScanService.scanConfiguredFolder());
-      return new ResponseEntity<>(true, HttpStatus.OK);
+      return new ResponseEntity<>(failedFileList, HttpStatus.OK);
     }else{
-      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>(failedFileList, HttpStatus.BAD_REQUEST);
     }
   }
 

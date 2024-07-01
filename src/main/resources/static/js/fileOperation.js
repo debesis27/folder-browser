@@ -218,11 +218,13 @@ function createFolder() {
   }
 }
 
-function uploadFile(file) {
+function uploadFiles(files) {
   const currentFolder = stateManager.getState().currentFolder;
 
   const formData = new FormData();
-  formData.append("file", file);
+  for (let i = 0; i < files.length; i++) {
+    formData.append("files", files[i]);
+  }
   formData.append("parentFolderPath", currentFolder.parent.url);
 
   fetch("/api/files/upload", {
@@ -231,11 +233,12 @@ function uploadFile(file) {
   })
     .then(response => response.json())
     .then(data => {
-      if(data){
+      if(data.length == 0){
         fetchAndShowFileBrowser(currentFolder.parent.url);
         alert("File uploaded successfully");
       }else{
-        alert("Failed to upload file");
+        alert("Some or all files failed to upload. Please check the server logs for more information.");
+        console.error("Failed to upload files: \n", data);
       }
     })
     .catch(error => {
@@ -263,7 +266,7 @@ export function bindFileOperationEvents() {
 
   $("#fileUploadInput").on("change", function() {
     if(this.files && this.files.length > 0) {
-      uploadFile(this.files[0]);
+      uploadFiles(this.files);
     }
   })
 }
@@ -276,5 +279,5 @@ export {
   copyFolder,
   deleteFolder,
   createFolder,
-  uploadFile
+  uploadFiles as uploadFile
 }

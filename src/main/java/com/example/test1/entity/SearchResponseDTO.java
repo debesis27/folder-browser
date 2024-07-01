@@ -2,11 +2,11 @@ package com.example.test1.entity;
 
 import java.util.List;
 
-public class FolderAndFileResponseDTO {
+public class SearchResponseDTO {
   private List<FileSystemItem> folders;
   private List<FileSystemItem> files;
 
-  public FolderAndFileResponseDTO(List<FileSystemItem> folders, List<FileSystemItem> files) {
+  public SearchResponseDTO(List<FileSystemItem> folders, List<FileSystemItem> files) {
     this.folders = folders;
     this.files = files;
   }
