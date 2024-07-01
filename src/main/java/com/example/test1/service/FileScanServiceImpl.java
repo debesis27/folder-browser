@@ -23,7 +23,7 @@ public class FileScanServiceImpl implements FileScanService{
 
   @Override
   public Path getPathFromFolderUrl(String path){
-    Path rootPath = Path.of(getRootFolderUrl());
+    Path rootPath = Path.of(getRootFolderUrl()).toAbsolutePath().normalize();
     if(path.length() < 5) return rootPath;
     path = path.substring(5);                                     // Remove root\ from the path
     path = rootPath.resolve(path).toString();

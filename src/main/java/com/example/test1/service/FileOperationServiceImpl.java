@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.test1.entity.FileSystemItem;
 import com.example.test1.entity.FileSystemItemDTO;
-import com.example.test1.entity.FolderAndFileResponseDTO;
+import com.example.test1.entity.SearchResponseDTO;
 
 @Service
 public class FileOperationServiceImpl implements FileOperationService{
@@ -31,7 +31,7 @@ public class FileOperationServiceImpl implements FileOperationService{
   private FileScanService fileScanService;
   
   @Override
-  public FolderAndFileResponseDTO searchAllFolderPathByName(String folderNameString, FileSystemItemDTO rootFolder) {
+  public SearchResponseDTO searchAllFolderPathByName(String folderNameString, FileSystemItemDTO rootFolder) {
     List<FileSystemItem> resultFolderList = new ArrayList<>();
     List<FileSystemItem> resultFileList = new ArrayList<>();
 
@@ -41,7 +41,7 @@ public class FileOperationServiceImpl implements FileOperationService{
 
     folderNameString = folderNameString.toLowerCase();
     searchFolderPathByNameHelper(folderNameString, rootFolder, "", resultFolderList, resultFileList);
-    return new FolderAndFileResponseDTO(resultFolderList, resultFileList);
+    return new SearchResponseDTO(resultFolderList, resultFileList);
   }
 
   private void searchFolderPathByNameHelper(
@@ -96,26 +96,32 @@ public class FileOperationServiceImpl implements FileOperationService{
   }
 
   @Override
-  public Boolean uploadFile(MultipartFile file, String parentFolderpath) {
-    if (file == null || parentFolderpath == null || parentFolderpath.isEmpty()) {
-      return false;
+  public List<String> uploadFiles(MultipartFile[] files, String parentFolderpath) {
+    if (files == null || files.length == 0 || parentFolderpath == null || parentFolderpath.isEmpty()) {
+      List<String> error = new ArrayList<>();
+      error.add("Error: files or parentFolderpath is empty");
+      return error;
     }
 
-    try {
-      Path parentPath = fileScanService.getPathFromFolderUrl(parentFolderpath);
-
-      if (!Files.exists(parentPath) || !Files.isDirectory(parentPath)) {
-        return false;
+    Path parentPath = fileScanService.getPathFromFolderUrl(parentFolderpath);
+    if (!Files.exists(parentPath) || !Files.isDirectory(parentPath)) {
+      List<String> error = new ArrayList<>();
+      error.add("Error: parentFolderpath is not a valid directory");
+      return error;
+    }
+    
+    List<String> failedFileNameList = new ArrayList<>();
+    for(MultipartFile file : files){
+      try {
+        file.transferTo(parentPath.resolve(file.getOriginalFilename()).toFile());
+      } catch (Exception e) {
+        failedFileNameList.add(file.getOriginalFilename());
+        System.out.println("Error uploading file: ");
+        e.printStackTrace();
       }
-      
-      file.transferTo(parentPath.resolve(file.getOriginalFilename()).toFile());
-      return true;
-
-    } catch (Exception e) {
-      System.out.println("Error uploading file: ");
-      e.printStackTrace();
-      return false;
     }
+
+    return failedFileNameList;
   }
 
   @Override
