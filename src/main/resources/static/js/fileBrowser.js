@@ -1,5 +1,5 @@
 import stateManager from "./stateManager.js";
-import { getFileImageElement, findFolderByPath } from "./utils.js";
+import { getFileImageElement, findFolderByPath, formatBytes } from "./utils.js";
 
 function fetchAndShowFileBrowser(currentFolderUrl = null) {
   fetch("/api/folders")
@@ -19,6 +19,7 @@ function openFolder(folder) {
   deselectFolder();
   renderFolderBrowser(folder);
   showBreadcrumbs(folder.parent.url);
+  showCurrentFolderInfo(folder);
 }
 
 function renderFolderBrowser(folder) {
@@ -119,7 +120,7 @@ function selectFolder(element, item) {
 
   stateManager.setState({selectedFileSystemItemList: selectedFileSystemItemList, selectedFileSystemItemElementList: selectedFileSystemItemElementList});
   element.addClass("selected");
-  $(".file-specific-tools").removeClass("hide");
+  $(".toolbar-right").removeClass("hide");
 }
 
 function deselectFolder(item = null) {
@@ -131,7 +132,7 @@ function deselectFolder(item = null) {
     selectedFileSystemItemElementList.forEach(element => {
       element.removeClass("selected");
     });
-    $(".file-specific-tools").addClass("hide");
+    $(".toolbar-right").addClass("hide");
     stateManager.setState({selectedFileSystemItemList: [], selectedFileSystemItemElementList: []});
   }else{
     let index = selectedFileSystemItemList.indexOf(item);
@@ -150,15 +151,31 @@ function deselectFolder(item = null) {
   }
 }
 
+function showCurrentFolderInfo(currentFolder) {
+  let element = $("#currentFolderInfo");
+  element.empty();
+
+  let heading = $("<h3></h3>").text("Folder Info");
+  let size = $("<p></p>").text("Size: " + formatBytes(currentFolder.parent.size));
+  let folders = $("<p></p>").text("Folders: " + currentFolder.childFolders.length);
+  let files = $("<p></p>").text("Files: " + currentFolder.childFiles.length);
+
+  element.append(heading, size, folders, files);
+}
+
 export function bindFileBrowserEvents() {
   // Deselect when clicking outside of the folder
   document.addEventListener("click", function (event) {
-    if (!event.target.closest('.folder') && !event.target.closest('.file-specific-tools')) {
+    if (!event.target.closest('.folder') && !event.target.closest('.toolbar-right')) {
       deselectFolder();
     }
   });
 
   $(".pop-breadcrumb").click(popBreadcrumb);
+
+  $("#homeButton").click(function() {
+    fetchAndShowFileBrowser();
+  });
 }
 
 export {
