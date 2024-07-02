@@ -1,9 +1,9 @@
 import stateManager from "./stateManager.js";
-import { findFolderByPath, formatBytes } from "./utils.js";
+import { formatBytes } from "./utils.js";
 import { openFileExplorerModel } from "./miniFileBrowser.js";
 import { fetchAndShowFileBrowser, deselectFolder } from "./fileBrowser.js";
 
-function showFolderInfo() {
+function showSelectedFolderInfo() {
   const selectedFileSystemItem = stateManager.getState().selectedFileSystemItemList[0];
 
   const isFolder = selectedFileSystemItem.parent != undefined;
@@ -251,7 +251,7 @@ export function bindFileOperationEvents() {
   $("#uploadFolderButton").click(function() {
     $("#fileUploadInput").click();
   });
-  $("#folderInfoButton").click(showFolderInfo);
+  $("#folderInfoButton").click(showSelectedFolderInfo);
   $("#renameFolderButton").click(renameFolder);
   $("#downloadFolderButton").click(downloadFolder);
   $("#moveFolderButton").click(function(){
@@ -272,7 +272,7 @@ export function bindFileOperationEvents() {
 }
 
 export {
-  showFolderInfo,
+  showSelectedFolderInfo as showFolderInfo,
   renameFolder,
   downloadFolder,
   moveFolder,

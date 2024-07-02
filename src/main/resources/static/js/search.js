@@ -22,11 +22,10 @@ function displaySearchResults(results) {
       $("#searchInput").val("");
       $("#search-results-container").empty();
 
-      $(".toolbar-right").toggleClass("hide");
-      $(".folder-grid-view-container").toggleClass("hide");
-      $("#searchResults").toggleClass("hide");
-      $("#logoOnSearchBar").toggleClass("hide");
-      $("#backButtonFromSearchResult").toggleClass("hide");
+      $(".main-content-container").removeClass("hide");
+      $("#searchResults").addClass("hide");
+      $("#logoOnSearchBar").removeClass("hide");
+      $("#backButtonFromSearchResult").addClass("hide");
 
       stateManager.setState({ currentFolder: findFolderByPath(folder.url.split("\\").slice(0), stateManager.getState().rootFolder) });
       openFolder(stateManager.getState().currentFolder);
@@ -68,8 +67,7 @@ export function bindSearchEvents() {
 
   // Search bar click
   $("#searchInput").click(function () {
-    $(".toolbar-right").addClass("hide");
-    $(".folder-grid-view-container").addClass("hide");
+    $(".main-content-container").addClass("hide");
     $("#searchResults").removeClass("hide");
     $("#logoOnSearchBar").addClass("hide");
     $("#backButtonFromSearchResult").removeClass("hide");
@@ -80,8 +78,7 @@ export function bindSearchEvents() {
     $("#searchInput").val("");
     $("#search-results-container").empty();
 
-    $(".toolbar-right").toggleClass("hide");
-    $(".folder-grid-view-container").toggleClass("hide");
+    $(".main-content-container").toggleClass("hide");
     $("#searchResults").toggleClass("hide");
     $("#logoOnSearchBar").toggleClass("hide");
     $("#backButtonFromSearchResult").toggleClass("hide");

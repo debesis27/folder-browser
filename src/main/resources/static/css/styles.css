@@ -33,6 +33,10 @@ button:focus {
 
 
 .toolbar {
+  position: sticky;
+  height: 70px;
+  top: 0;
+  z-index: 1000;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -130,17 +134,21 @@ button:focus {
   display: none;
 }
 
-.toolbar-right.hide {
-  display: none;
-}
-
 .toolbar-right {
   display: flex;
   align-items: center;
 }
 
+.toolbar-right.hide {
+  display: none;
+}
+
+.toolbar-right .toolbar-button {
+  margin-left: 10px;
+}
+
 .toolbar-button {
-  background-color: #808000;
+  background-color: transparent;
   border: none;
   padding: 10px 20px;
   margin-left: 10px;
@@ -161,7 +169,7 @@ button:focus {
   background-color: #606000;
 }
 
-.toolbar-button:focus {
+button:focus {
   outline: none;
 }
 
@@ -169,28 +177,87 @@ button:focus {
   display: none;
 }
 
-.toolbar-divider {
-  width: 1px;
-  height: 40px;
-  background-color: white;
-  margin: 0 10px;
+.main-content-container {
+  display: flex;
 }
 
-.file-specific-tools {
+.main-content-container.hide {
+  display: none;
+}
+
+/* Sidebar */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 16vw;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+  overflow-x: hidden;
+  padding: 20px;
+  margin-top: 70px;
+  background-color: #606000;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  color: white;
+}
+
+.sidebar-element {
   display: flex;
   align-items: center;
+  margin: 15px 0;
+  cursor: pointer;
 }
 
-.file-specific-tools.hide {
-  display: none;
+.sidebar-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-right: 10px;
 }
 
-.file-specific-tools .toolbar-button {
-  margin-left: 10px;
+.sidebar img {
+  width: 24px;
+  height: 24px;
+  margin-right: 10px;
 }
 
-.folder-grid-view-container.hide {
-  display: none;
+.sidebar h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.sidebar p {
+  margin: 5px 0;
+  font-size: 16px;
+  color: rgb(165, 157, 145);;
+}
+
+.sidebar hr {
+  border: none;
+  border-bottom: 1px solid #ccc;
+  margin: 10px 25px 10px 0px;
+}
+
+.sidebar-element#currentFolderInfo {
+  margin-top: auto;
+  margin-bottom: 80px;
+  flex-direction: column;
+  align-items: flex-start;
+  cursor: default;
+}
+
+.sidebar-element#currentFolderInfo h3 {
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+
+.folder-grid-view-container {
+  padding-bottom: 20px;
+  margin-left: 17vw;
+  margin-top: 10px;
 }
 
 .navigation-container {
@@ -352,29 +419,29 @@ button:focus {
 
 /* Select Button */
 .select-button {
-  background-color: #4CAF50; /* Green background */
-  border: none; /* Remove borders */
-  color: white; /* White text */
-  padding: 15px 32px; /* Add some padding */
-  text-align: center; /* Center the text */
-  text-decoration: none; /* Remove underline */
-  display: inline-block; /* Make the link a block element */
-  font-size: 16px; /* Increase font size */
-  margin: 10px 2px; /* Add some margin */
-  cursor: pointer; /* Pointer/hand icon */
-  border-radius: 12px; /* Rounded corners */
-  transition: background-color 0.3s, box-shadow 0.3s; /* Smooth transitions */
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 10px 2px;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: background-color 0.3s, box-shadow 0.3s;
 }
 
 .select-button:hover {
-  background-color: #45a049; /* Darker green on hover */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
+  background-color: #45a049;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .select-button:disabled {
-  background-color: #cccccc; /* Grey background when disabled */
-  cursor: not-allowed; /* Not-allowed cursor */
-  box-shadow: none; /* Remove shadow */
+  background-color: #cccccc;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 /* Animation for modal */
@@ -402,7 +469,7 @@ button:focus {
 .folder {
   border-radius: 3px;
   text-align: center;
-  width: 17.6vw;
+  width: 14.2vw;
   word-wrap: break-word;
   white-space: normal;
   border: 1px solid #eeeeee;
@@ -440,7 +507,7 @@ button:focus {
   }
 
   .folder {
-    width: 22.5vw;
+    width: 17.5vw;
   }
 }
 
@@ -450,7 +517,7 @@ button:focus {
   }
 
   .folder {
-    width: 30.6vw;
+    width: 24vw;
   }
 }
 
@@ -460,7 +527,7 @@ button:focus {
   }
 
   .folder {
-    width: 47vw;
+    width: 37vw;
   }
 }
 
