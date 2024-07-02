@@ -80,7 +80,7 @@ button:focus {
 .search-bar input {
   border: none;
   background-color: transparent;
-  color: #e6e7c9; /* Change the text color to a lighter tone */
+  color: #e6e7c9;
   font-size: 14px;
   width: 200px;
   outline: none;
@@ -113,12 +113,13 @@ button:focus {
 .search-result-item .result-name {
   font-weight: bold;
   margin-right: 20px;
-  width: 30%;
+  width: 26%;
   overflow-wrap: break-word;
 }
 
 .search-result-item .result-path {
   color: #888;
+  width: 68%;
   overflow-wrap: break-word;
 }
 
