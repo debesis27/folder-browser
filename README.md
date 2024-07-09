@@ -25,22 +25,22 @@ Folder Browser is a web application built with Java, Spring Boot, and Thymeleaf 
 
 **Home Page**
 
-<img src="/ReadMe-Images/home.jpg" width="700" height="400">
+<img src="/ReadMe-Images/home.jpg" width="800" height="400">
 
 \
 **File Operations**
 
-<img src="/ReadMe-Images/file-operations.jpg" width="700" height="400"> 
+<img src="/ReadMe-Images/file-operations.jpg" width="800" height="400"> 
 
 \
 **File Icons**
 
-<img src="/ReadMe-Images/file-icons.jpg" width="700" height="400">
+<img src="/ReadMe-Images/file-icons.jpg" width="800" height="400">
 
 \
 **Search**
 
-<img src="/ReadMe-Images/search.jpg" width="700" height="400"> 
+<img src="/ReadMe-Images/search.jpg" width="800" height="400"> 
 
 ## Tech Stack
 
